@@ -1,5 +1,10 @@
 #!/bin/bash
 
+export IS_UPGRADE=$(ctx node properties is_upgrade)
+if [ "$IS_UPGRADE" == "true" ]; then
+  exit 0
+fi
+
 . $(ctx download-resource "components/utils")
 
 JAVA_SOURCE_URL=$(ctx node properties java_rpm_source_url)

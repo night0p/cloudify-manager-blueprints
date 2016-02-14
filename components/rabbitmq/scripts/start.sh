@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+export IS_UPGRADE=$(ctx node properties is_upgrade)
+if [ "$IS_UPGRADE" == "true" ]; then
+  exit 0
+fi
+
 export RABBITMQ_ENDPOINT_IP=$(ctx node properties rabbitmq_endpoint_ip)
 
 if [[ -z "${RABBITMQ_ENDPOINT_IP}" ]]; then

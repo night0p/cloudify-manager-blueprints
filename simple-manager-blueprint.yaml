@@ -48,6 +48,9 @@ inputs:
   admin_password:
     default: admin
 
+  is_upgrade:
+    default: true
+
   insecure_endpoints_disabled:
     description: Disables insecure REST endpoints
     type: boolean

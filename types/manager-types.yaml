@@ -19,6 +19,8 @@ node_types:
         default: /root/.ssh/agent_key.pem
       public_ip:
         default: ''
+      is_upgrade:
+        default: { get_input: is_upgrade }
       cloudify:
         description: >
           Configuration for Cloudify Manager
@@ -125,6 +127,8 @@ node_types:
   manager.nodes.PythonRuntime:
     derived_from: cloudify.nodes.SoftwareComponent
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       install_python_compilers:
         type: string
         default: { get_input: install_python_compilers }
@@ -151,6 +155,8 @@ node_types:
   manager.nodes.JavaRuntime:
     derived_from: cloudify.nodes.SoftwareComponent
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       java_rpm_source_url:
         description: Java RPM Source URL
         default: { get_input: java_source_url }
@@ -166,6 +172,8 @@ node_types:
   manager.nodes.RabbitMQ:
     derived_from: cloudify.nodes.MessageBusServer
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       rabbitmq_endpoint_ip:
         description: Location of the endpoint.
         type: string
@@ -244,6 +252,8 @@ node_types:
   manager.nodes.Elasticsearch:
     derived_from: cloudify.nodes.DBMS
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       es_rpm_source_url:
         description: Elasticsearch RPM Source URL
         type: string
@@ -303,6 +313,8 @@ node_types:
   manager.nodes.Logstash:
     derived_from: cloudify.nodes.SoftwareComponent
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       logstash_rpm_source_url:
         description: Logstash tar.gz Source URL
         type: string
@@ -348,6 +360,8 @@ node_types:
   manager.nodes.InfluxDB:
     derived_from: cloudify.nodes.DBMS
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       influxdb_rpm_source_url:
         description: InfluxDB RPM Source URL
         type: string
@@ -379,6 +393,8 @@ node_types:
   manager.nodes.Nginx:
     derived_from: cloudify.nodes.WebServer
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       nginx_rpm_source_url:
         description: Nginx RPM Source URL
         type: string
@@ -424,6 +440,8 @@ node_types:
   manager.nodes.Riemann:
     derived_from: cloudify.nodes.SoftwareComponent
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       langohr_jar_source_url:
         description: Langohr JAR Source URL
         type: string
@@ -476,6 +494,8 @@ node_types:
   manager.nodes.RestService:
     derived_from: cloudify.nodes.ApplicationModule
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       rest_service_rpm_source_url:
         type: string
         default: { get_input: rest_service_rpm_source_url }
@@ -578,6 +598,8 @@ node_types:
   manager.nodes.ManagementWorker:
     derived_from: cloudify.nodes.ApplicationModule
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       management_worker_rpm_source_url:
         description: Management Worker RPM Source URL
         type: string
@@ -661,6 +683,8 @@ node_types:
   manager.nodes.AmqpInfluxBroker:
     derived_from: cloudify.nodes.ApplicationModule
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       amqpinflux_rpm_source_url:
         description: AMQP to InfluxDB Broker RPM Source URL
         type: string
@@ -715,6 +739,8 @@ node_types:
   manager.nodes.WebUI:
     derived_from: cloudify.nodes.ApplicationModule
     properties:
+      is_upgrade:
+        default: { get_input: is_upgrade }
       webui_tar_source_url:
         description: Cloudify's WebUI Source URL
         type: string
