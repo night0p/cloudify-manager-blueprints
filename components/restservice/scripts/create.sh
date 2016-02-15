@@ -69,9 +69,9 @@ fi
 # this create the RESTSERVICE_VIRTUALENV and installs the relevant modules into it.
 if [ "$IS_UPGRADE" == "true" ]; then
   yum_uninstall "cloudify-rest-service*"
-else
-  yum_install ${REST_SERVICE_RPM_SOURCE_URL}
 fi
+yum_install ${REST_SERVICE_RPM_SOURCE_URL}
+
 
 # link dbus-python-1.1.1-9.el7.x86_64 to the venv (module in pypi is very old)
 if [ -d "/usr/lib64/python2.7/site-packages/dbus" ]; then
