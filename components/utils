@@ -177,6 +177,15 @@ function wait_for_port
     ctx logger info "Port ${port} is available!"
 }
 
+function yum_uninstall() {
+    ###
+    # Uninstall a yum package according to it's name.
+    # This will be mainly used for upgrade purposes.
+    ###
+    package_name=$1
+    rpm -e $package_name
+}
+
 function yum_install() {
     ###
     # yum supports installing from URL, path and the default yum repo

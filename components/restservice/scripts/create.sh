@@ -1,9 +1,9 @@
 #!/bin/bash -e
 
 export IS_UPGRADE=$(ctx node properties is_upgrade)
-if [ "$IS_UPGRADE" == "true" ]; then
-  exit 0
-fi
+# if [ "$IS_UPGRADE" == "true" ]; then
+  # exit 0
+# fi
 
 . $(ctx download-resource "components/utils")
 
@@ -67,7 +67,11 @@ else
 fi
 
 # this create the RESTSERVICE_VIRTUALENV and installs the relevant modules into it.
-yum_install ${REST_SERVICE_RPM_SOURCE_URL}
+if [ "$IS_UPGRADE" == "true" ]; then
+  yum_uninstall "cloudify-rest-service*"
+else
+  yum_install ${REST_SERVICE_RPM_SOURCE_URL}
+fi
 
 # link dbus-python-1.1.1-9.el7.x86_64 to the venv (module in pypi is very old)
 if [ -d "/usr/lib64/python2.7/site-packages/dbus" ]; then
