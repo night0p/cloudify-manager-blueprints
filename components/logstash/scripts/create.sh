@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 export IS_UPGRADE=$(ctx node properties is_upgrade)
-if [ "$IS_UPGRADE" == "true" ]; then
+if [ "$IS_UPGRADE" == "True" ]; then
   exit 0
 fi
 

@@ -1,7 +1,10 @@
 #!/bin/bash
 
 export IS_UPGRADE=$(ctx node properties is_upgrade)
-if [ "$IS_UPGRADE" == "true" ]; then
+ctx logger info "HHHHHHHEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+ctx logger info "is_upgrade is set to ${IS_UPGRADE} .........................."
+if [ "$IS_UPGRADE" == "True" ]; then
+  ctx logger info "BYEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   exit 0
 fi
 

@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 export IS_UPGRADE=$(ctx node properties is_upgrade)
-# if [ "$IS_UPGRADE" == "true" ]; then
+# if [ "$IS_UPGRADE" == "True" ]; then
   # exit 0
 # fi
 
@@ -67,9 +67,11 @@ else
 fi
 
 # this create the RESTSERVICE_VIRTUALENV and installs the relevant modules into it.
-if [ "$IS_UPGRADE" == "true" ]; then
-  yum_uninstall "cloudify-rest-service*"
+if [ "$IS_UPGRADE" == "True" ]; then
+  ctx logger info "Removing existing rest service installation"
+  yum_uninstall "cloudify-rest-service-3.4.0-m1_b390.x86_64"
 fi
+ctx logger info "Installing rest service"
 yum_install ${REST_SERVICE_RPM_SOURCE_URL}
 
 

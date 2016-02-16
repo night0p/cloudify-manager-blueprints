@@ -183,7 +183,7 @@ function yum_uninstall() {
     # This will be mainly used for upgrade purposes.
     ###
     package_name=$1
-    rpm -e $package_name
+    sudo rpm -e $package_name
 }
 
 function yum_install() {

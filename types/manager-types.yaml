@@ -321,11 +321,11 @@ node_types:
         default: { get_input: logstash_source_url }
       es_endpoint_port:
         type: integer
-        default: { get_input: elasticsearch_endpoint_port }
+        default: 9200
       rabbitmq_endpoint_ip:
         description: Location of the endpoint. If blank, rabbit will be installed and configured on the manager.
         type: string
-        default: { get_input: rabbitmq_endpoint_ip }
+        default: 107.22.176.118
       rabbitmq_username:
         description: RabbitMQ username for access to queues.
         type: string
@@ -343,7 +343,7 @@ node_types:
               default: components/logstash/scripts/create.sh
             fabric_env: *simple_fabric_env
             ES_ENDPOINT_IP:
-              default: { get_attribute: [elasticsearch, es_endpoint_ip] }
+              default: '107.22.176.118'
         start:
           implementation: fabric.fabric_plugin.tasks.run_script
           inputs:
@@ -558,7 +558,7 @@ node_types:
         default: {}
       es_endpoint_port:
         type: integer
-        default: { get_input: elasticsearch_endpoint_port }
+        default: 9200
       insecure_endpoints_disabled:
         description: Disables insecure REST endpoints
         type: boolean
@@ -573,7 +573,7 @@ node_types:
               default: components/restservice/scripts/create.sh
             fabric_env: *simple_fabric_env
             ES_ENDPOINT_IP:
-              default: { get_attribute: [elasticsearch, es_endpoint_ip] }
+              default: '107.22.176.118'
         configure:
           implementation: fabric.fabric_plugin.tasks.run_task
           inputs:
