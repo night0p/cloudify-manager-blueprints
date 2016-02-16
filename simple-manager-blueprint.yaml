@@ -2,7 +2,7 @@ tosca_definitions_version: cloudify_dsl_1_2
 
 imports:
   - http://www.getcloudify.org/spec/cloudify/3.4m2/types.yaml
-  - http://www.getcloudify.org/spec/fabric-plugin/1.4/plugin.yaml
+  - https://raw.githubusercontent.com/cloudify-cosmo/cloudify-fabric-plugin/CFY-4691-support-ctx-natively-in-python-scripts/plugin.yaml
   - types/manager-types.yaml
 
 
@@ -92,7 +92,7 @@ inputs:
 
   webui_source_url:
     type: string
-    default: http://repository.cloudifysource.org/org/cloudify3/3.4.0/m2-RELEASE/cloudify-ui-3.4.0-m2-b391.tgz
+    default: http://repository.cloudifysource.org/org/cloudify3/3.4.0/m1-RELEASE/cloudify-ui-3.4.0-m1-b390.tgz
 
   # This is a Cloudify specific redistribution of Grafana.
   grafana_source_url:
