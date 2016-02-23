@@ -835,7 +835,7 @@ relationships:
           implementation: fabric.fabric_plugin.tasks.run_script
           inputs:
             script_path:
-              default: components/nginx/scripts/preconfigure.sh
+              default: components/nginx/scripts/preconfigure.py
             fabric_env: *simple_fabric_env
     target_interfaces:
       cloudify.interfaces.relationship_lifecycle:
@@ -849,7 +849,7 @@ relationships:
             implementation: fabric.fabric_plugin.tasks.run_script
             inputs:
               script_path:
-                default: components/restservice/scripts/preconfigure.sh
+                default: components/restservice/scripts/preconfigure.py
               fabric_env: *simple_fabric_env
 
   amqpinflux_to_rabbitmq:

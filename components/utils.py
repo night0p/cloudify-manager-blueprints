@@ -20,7 +20,7 @@ CLOUDIFY_SOURCES_PATH = '/opt/cloudify/sources'
 
 
 def run(command, retries=0, ignore_failures=False, globx=False):
-    ctx.logger.info('running: {0} with glob {1}'.format(command, globx))
+    # ctx.logger.info('running: {0} with glob {1}'.format(command, globx))
     if isinstance(command, str):
         command = shlex.split(command)
     stderr = sub.PIPE
