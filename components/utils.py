@@ -328,7 +328,7 @@ def replace_in_file(this, with_this, in_here):
 
 
 def get_selinux_state():
-    return sub.check_output('getenforce')
+    return sub.check_output('getenforce').rstrip('\n\r')
 
 
 def set_selinux_permissive():
@@ -336,7 +336,7 @@ def set_selinux_permissive():
     and systemwide.
     """
     ctx.logger.info('Checking whether SELinux in enforced...')
-    if get_selinux_state() == 'Enforcing':
+    if 'Enforcing' == get_selinux_state():
         ctx.logger.info('SELinux is enforcing, setting permissive state...')
         sudo(['setenforce', 'permissive'])
         replace_in_file(
