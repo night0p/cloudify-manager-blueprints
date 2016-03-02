@@ -8,4 +8,4 @@ ctx.download_resource('components/utils.py', jn(dn(__file__), 'utils.py'))
 import utils
 
 ctx.logger.info('Starting Management Worker Service...')
-utils.systemd.start('cloudify-mgmtworker.service')
+utils.start_service_and_archive_properties('cloudify-mgmtworker.service')

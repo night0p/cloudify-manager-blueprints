@@ -7,10 +7,13 @@ from cloudify import ctx
 ctx.download_resource('components/utils.py', jn(dn(__file__), 'utils.py'))
 import utils
 
+ctx_factory = utils.CtxPropertyFactory()
+ctx_properties = ctx_factory.create('python')
+
 
 def install_python_requirements():
 
-    pip_source_rpm_url = ctx.node.properties['pip_source_rpm_url']
+    pip_source_rpm_url = ctx_properties['pip_source_rpm_url']
     install_python_compilers = ctx.node.properties['install_python_compilers']
 
     ctx.logger.info('Installing Python Requirements...')
@@ -27,3 +30,4 @@ def install_python_requirements():
 
 
 install_python_requirements()
+ctx_factory.archive_properties('python')

@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 
 import os
+import re
 import time
 import subprocess as sub
 import sys
 import urllib
-import tempfile
 import socket
 import shlex
 import pwd
 import glob
+import tempfile
+import json
+from distutils.version import LooseVersion
 
 from cloudify import ctx
 
@@ -156,14 +159,14 @@ def download_cloudify_resource(url):
     return destf
 
 
-def deploy_blueprint_resource(source, destination):
-    """Downloads a resource from the blueprint to a destination.
+def deploy_blueprint_resource(source, destination, params=None):
+    """Downloads a resource from the bluectx.logger.info to a destination.
 
     This expands `download-resource` as a `sudo mv` is required after
     having downloaded the resource.
     """
     ctx.logger.info('Deploying {0} to {1}'.format(source, destination))
-    tmp_file = ctx.download_resource_and_render(source)
+    tmp_file = ctx.download_resource_and_render(source, params=params)
     move(tmp_file, destination)
 
 
@@ -243,6 +246,7 @@ def yum_install(source):
             ctx.logger.info('Saving {0} under {1}...'.format(
                 filename, CLOUDIFY_SOURCES_PATH))
             move(tmp_path, archive_path)
+        # get the rpm package name from archive package file
         source_name = sub.check_output(['rpm', '-qp', archive_path]).strip()
 
     ctx.logger.info('Checking whether {0} is already installed...'.format(
@@ -252,8 +256,44 @@ def yum_install(source):
         ctx.logger.info('Package {0} is already installed.'.format(source))
         return
 
+    if is_upgrade():
+        remove_existing_rpm_package(source_name)
+
     ctx.logger.info('yum installing {0}...'.format(archive_path))
     sudo(['yum', 'install', '-y', archive_path])
+
+
+def remove_existing_rpm_package(source_name):
+    new_package_name, new_version = get_rpm_package_details(source_name)
+    old_rpm_name = get_installed_rpm_name(new_package_name)
+    old_package_name, old_version = get_rpm_package_details(old_rpm_name)
+    if LooseVersion(new_version) > LooseVersion(old_version):
+        ctx.logger.info('Old version installed. Uninstalling {0}...'
+                        .format(old_rpm_name))
+        sudo(['rpm', '--noscripts', '-e', old_rpm_name])
+
+
+def get_installed_rpm_name(new_package_name):
+    older_version_query = run(['rpm', '-q', new_package_name],
+                              ignore_failures=True)
+    old_rpm_name = older_version_query.aggr_stdout.rstrip('\n\r')
+    ctx.logger.info('Found installed package named: {0}'
+                    .format(old_rpm_name))
+    return old_rpm_name
+
+
+def get_rpm_package_details(source_name):
+
+    digit_match = re.search('\d', source_name)
+    first_digit_index = digit_match.start()
+    package_name = source_name[:first_digit_index - 1]
+
+    arc_match = re.search('.x86_64|.noarch', source_name)
+    arc_index = arc_match.start()
+
+    version_rel = source_name[first_digit_index:arc_index - len(source_name)]
+
+    return package_name, version_rel
 
 
 class SystemD(object):
@@ -313,6 +353,12 @@ class SystemD(object):
     def stop(self, service_name):
         self.systemctl('stop', service_name)
 
+    def restart(self, service_name):
+        self.systemctl('restart', service_name)
+
+    def status(self, service_name):
+        self.systemctl('status', service_name)
+
 
 systemd = SystemD()
 
@@ -354,15 +400,11 @@ def set_rabbitmq_policy(name, q_regex, p_type, value):
          '--apply-to-queues'.format(name, q_regex, p_type, value))
 
 
-def get_rabbitmq_endpoint_ip():
+def get_rabbitmq_endpoint_ip(ctx_properties):
     """Gets the rabbitmq endpoint IP, using the manager IP if the node
     property is blank.
     """
-    try:
-        return ctx.node.properties['rabbitmq_endpoint_ip']
-    # why?
-    except:
-        return ctx.instance.host_ip
+    return ctx_properties.get('rabbitmq_endpoint_ip', ctx.instance.host_ip)
 
 
 def create_service_user(user, home):
@@ -437,7 +479,123 @@ def clean_var_log_dir(service):
     #                     service))
     #     sudo(['rm', '-rf', path])
 
+
 def untar(source, destination='/tmp', strip=1):
     # TODO: use tarfile instead
     sudo(['tar', '-xzvf', source, '-C', destination,
           '--strip={0}'.format(strip)])
+
+
+def write_file(content, file_path):
+    tmp_file = tempfile.NamedTemporaryFile(delete=False)
+    mkdir(os.path.dirname(os.path.abspath(file_path)))
+    with open(tmp_file.name, 'w') as f:
+        f.write(json.dumps(content))
+    move(tmp_file.name, file_path)
+
+
+class CtxPropertyFactory(object):
+
+    PROPERTIES_FILE_NAME = 'properties.json'
+    PROPERTIES_PATH = '/opt/cloudify/node_properties/'
+    ROLLBACK_PROPERTIES_PATH = '/opt/cloudify/rollback_node_properties/'
+
+    # A list of property suffixes to be included in the upgrade process,
+    # despite having 'use_existing' configuration from the previous installation
+    UPGRADE_PROPS_SUFFIX = ['rpm_source_url', 'cloudify_resources_url']
+
+    def __init__(self):
+        self.is_upgrade = is_upgrade()
+
+    # Create node properties according to the workflow context install/upgrade
+    def create(self, service_name, upgrade_props_suffix=UPGRADE_PROPS_SUFFIX):
+
+        ctx_props = self._load_ctx_properties(service_name,
+                                              upgrade_props_suffix)
+
+        self._write_props_to_file(ctx_props, service_name)
+        return ctx_props
+
+    def _write_props_to_file(self, ctx_props, service_name):
+
+        dest_file_path = self._get_props_file_path(service_name)
+        ctx.logger.info('Saving {service} input configuration to {path}'
+                        .format(service=service_name,
+                                path=dest_file_path))
+        write_file(ctx_props, dest_file_path)
+
+    def archive_properties(self, service_name):
+        service_archive_path = os.path.join(self.ROLLBACK_PROPERTIES_PATH,
+                                            service_name)
+        mkdir(service_archive_path)
+        base_service_dir = os.path.join(self.PROPERTIES_PATH, service_name)
+        properties_file_path = os.path.join(base_service_dir,
+                                            self.PROPERTIES_FILE_NAME)
+        ctx.logger.info('Archiving previous inputs for service {service}'
+                        .format(service=service_name))
+        move(properties_file_path, service_archive_path)
+        ctx.logger.info('Setting new properties for service {service}'
+                        .format(service=service_name))
+        move(self._get_props_file_path(service_name), properties_file_path)
+
+    def _get_props_file_path(self, service_name):
+        base_service_dir = os.path.join(self.PROPERTIES_PATH, service_name)
+        if self.is_upgrade:
+            dest_file_path = os.path.join(
+                    base_service_dir,
+                    'upgrade-{0}'.format(self.PROPERTIES_FILE_NAME))
+        else:
+            dest_file_path = os.path.join(base_service_dir,
+                                          self.PROPERTIES_FILE_NAME)
+        return dest_file_path
+
+    def _load_ctx_properties(self, service_name, upgrade_props_suffix=None):
+        '''
+        :param upgrade_props_suffix: if use_existing is set to true, these
+        props will not be preserved but taken from the current ctx node props
+        :return:
+            the appropriate ctx node properties
+        '''
+
+        node_props = dict(ctx.node.properties.get_all())
+        if self.is_upgrade:
+            # Use existing property configuration during upgrade
+            use_existing = node_props.get('use_existing_on_upgrade')
+            if use_existing:
+                install_props_path = os.path.join(self.PROPERTIES_PATH,
+                                                  service_name,
+                                                  self.PROPERTIES_FILE_NAME)
+                ctx.logger.info('Loading existing {service} input config from '
+                                '{path}'.format(service=service_name,
+                                                path=install_props_path))
+                with open(install_props_path, 'r') as f:
+                    existing_props = json.load(f)
+
+                # Removing properties with suffix matching upgrade properties
+                for key in existing_props.keys():
+                    for suffix in upgrade_props_suffix:
+                        if key.endswith(suffix):
+                            del existing_props[key]
+
+                # Update node properties with existing configuration inputs
+                node_props.update(existing_props)
+
+        return node_props
+
+
+def is_upgrade():
+    '''
+    Returns true if manager is in upgrade mode. This function will assume
+    manager is in upgrade state according to the maintenance mode file.
+    :return: True if in upgrade state, false otherwise.
+    '''
+    return True
+    # return os.path.isfile('/opt/manager/status.txt')
+
+
+def start_service_and_archive_properties(service_name):
+    if is_upgrade():
+        systemd.restart(service_name)
+        CtxPropertyFactory().archive_properties(service_name)
+    else:
+        systemd.start(service_name)

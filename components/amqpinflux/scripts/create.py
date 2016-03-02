@@ -11,9 +11,11 @@ import utils
 
 AMQPINFLUX_HOME = '/opt/amqpinflux'
 
+ctx_properties = utils.CtxPropertyFactory().create('cloudify-amqpinflux')
+
 
 def install_optional(amqpinflux_venv):
-    amqpinflux_source_url = ctx.node.properties['amqpinflux_module_source_url']
+    amqpinflux_source_url = ctx_properties['amqpinflux_module_source_url']
     # this allows to upgrade amqpinflux if necessary.
     if amqpinflux_source_url:
         utils.install_python_package(amqpinflux_source_url, amqpinflux_venv)
@@ -21,15 +23,15 @@ def install_optional(amqpinflux_venv):
 
 def deploy_broker_configuration(amqpinflux_group):
 
-    rabbitmq_cert_enabled = ctx.node.properties['rabbitmq_ssl_enabled']
-    rabbitmq_cert_public = ctx.node.properties['rabbitmq_cert_public']
+    rabbitmq_cert_enabled = ctx_properties['rabbitmq_ssl_enabled']
+    rabbitmq_cert_public = ctx_properties['rabbitmq_cert_public']
 
     if rabbitmq_cert_enabled:
         broker_cert_path = os.path.join(AMQPINFLUX_HOME, 'amqp_pub.pem')
         # If no certificate was supplied, the deploy function will raise
         # an error.
         utils.deploy_ssl_certificate(
-            'public', broker_cert_path, amqpinflux_group, rabbitmq_cert_public)
+                'public', broker_cert_path, amqpinflux_group, rabbitmq_cert_public)
         ctx.instance.runtime_properties['broker_cert_path'] = broker_cert_path
     elif rabbitmq_cert_public is not None:
         ctx.logger.warn('Broker SSL cert supplied but SSL not enabled '
@@ -38,14 +40,13 @@ def deploy_broker_configuration(amqpinflux_group):
 
 def install_amqpinflux():
 
-    amqpinflux_rpm_source_url = \
-        ctx.node.properties['amqpinflux_rpm_source_url']
+    amqpinflux_rpm_source_url = ctx_properties['amqpinflux_rpm_source_url']
 
     # injected as an input to the script
     ctx.instance.runtime_properties['influxdb_endpoint_ip'] = \
         os.environ['INFLUXDB_ENDPOINT_IP']
     ctx.instance.runtime_properties['rabbitmq_endpoint_ip'] = \
-        utils.get_rabbitmq_endpoint_ip()
+        utils.get_rabbitmq_endpoint_ip(ctx_properties)
 
     amqpinflux_user = 'amqpinflux'
     amqpinflux_group = 'amqpinflux'

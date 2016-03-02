@@ -12,6 +12,8 @@ import utils
 
 CONFIG_PATH = 'components/rabbitmq/config'
 
+ctx_properties = utils.CtxPropertyFactory().create('cloudify-rabbitmq')
+
 
 def check_if_user_exists(username):
     if username in utils.sudo(
@@ -69,17 +71,19 @@ def set_rabbit_mq_security(rabbitmq_ssl_enabled,
 
 #TODO: remove all putenv
 def install_rabbitmq():
-    erlang_rpm_source_url = ctx.node.properties['erlang_rpm_source_url']
-    rabbitmq_rpm_source_url = ctx.node.properties['rabbitmq_rpm_source_url']
+
+
+    erlang_rpm_source_url = ctx_properties['erlang_rpm_source_url']
+    rabbitmq_rpm_source_url = ctx_properties['rabbitmq_rpm_source_url']
     # TODO: maybe we don't need this env var
     os.putenv('RABBITMQ_FD_LIMIT',
-              str(ctx.node.properties['rabbitmq_fd_limit']))
+              str(ctx_properties['rabbitmq_fd_limit']))
     rabbitmq_log_path = '/var/log/cloudify/rabbitmq'
-    rabbitmq_username = ctx.node.properties['rabbitmq_username']
-    rabbitmq_password = ctx.node.properties['rabbitmq_password']
-    rabbitmq_cert_public = ctx.node.properties['rabbitmq_cert_public']
-    rabbitmq_ssl_enabled = ctx.node.properties['rabbitmq_ssl_enabled']
-    rabbitmq_cert_private = ctx.node.properties['rabbitmq_cert_private']
+    rabbitmq_username = ctx_properties['rabbitmq_username']
+    rabbitmq_password = ctx_properties['rabbitmq_password']
+    rabbitmq_cert_public = ctx_properties['rabbitmq_cert_public']
+    rabbitmq_ssl_enabled = ctx_properties['rabbitmq_ssl_enabled']
+    rabbitmq_cert_private = ctx_properties['rabbitmq_cert_private']
 
     ctx.logger.info('Installing RabbitMQ...')
     utils.set_selinux_permissive()
@@ -103,7 +107,8 @@ def install_rabbitmq():
     ctx.logger.info('Configuring File Descriptors Limit...')
     utils.deploy_blueprint_resource(
         '{0}/rabbitmq_ulimit.conf'.format(CONFIG_PATH),
-        '/etc/security/limits.d/rabbitmq.conf')
+        '/etc/security/limits.d/rabbitmq.conf',
+        params=ctx_properties)
 
     utils.systemd.systemctl('daemon-reload')
 
@@ -111,7 +116,7 @@ def install_rabbitmq():
     utils.chown('rabbitmq', 'rabbitmq', rabbitmq_log_path)
 
     ctx.logger.info('Starting RabbitMQ Server in Daemonized mode...')
-    utils.systemd.systemctl('start', service='cloudify-rabbitmq.service')
+    utils.systemd.start('cloudify-rabbitmq')
 
     sleep(30)
 
@@ -131,10 +136,9 @@ def install_rabbitmq():
                            rabbitmq_cert_private,
                            rabbitmq_cert_public)
 
-    # ctx.logger.info('Stopping RabbitMQ Service...')
-    # utils.systemd.systemctl('stop', service='cloudify-rabbitmq.service',
-    #                         retries=5)
-    # utils.clean_var_log_dir('rabbitmq')
+    ctx.logger.info('Stopping RabbitMQ Service...')
+    utils.systemd.systemctl('stop', service='cloudify-rabbitmq.service',
+                            retries=5)
 
 #TODO: put in main
 #TODO: all string formats in single quotes

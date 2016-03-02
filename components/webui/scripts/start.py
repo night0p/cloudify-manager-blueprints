@@ -9,4 +9,5 @@ import utils
 
 
 ctx.logger.info('Starting WebUI Service...')
-utils.systemd.start('cloudify-webui')
+utils.start_service_and_archive_properties('cloudify-webui')
+

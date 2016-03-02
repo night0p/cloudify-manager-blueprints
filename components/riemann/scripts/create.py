@@ -9,16 +9,22 @@ import utils
 
 
 CONFIG_PATH = 'components/riemann/config'
+RIEMANN_INPUTS_PATH = '/opt/cloudify/inputs/riemann'
+
+ctx_properties = utils.CtxPropertyFactory().create('cloudify-riemann.service')
 
 
 def install_riemann():
-    langohr_source_url = ctx.node.properties['langohr_jar_source_url']
-    daemonize_source_url = ctx.node.properties['daemonize_rpm_source_url']
-    riemann_source_url = ctx.node.properties['riemann_rpm_source_url']
+
+    ctx.logger.info('HERE!, My props are: {}'.format(ctx_properties))
+
+    langohr_source_url = ctx_properties['langohr_jar_source_url']
+    daemonize_source_url = ctx_properties['daemonize_rpm_source_url']
+    riemann_source_url = ctx_properties['riemann_rpm_source_url']
     # Needed for Riemann's config
-    cloudify_resources_url = ctx.node.properties['cloudify_resources_url']
-    rabbitmq_username = ctx.node.properties['rabbitmq_username']
-    rabbitmq_password = ctx.node.properties['rabbitmq_password']
+    cloudify_resources_url = ctx_properties['cloudify_resources_url']
+    rabbitmq_username = ctx_properties['rabbitmq_username']
+    rabbitmq_password = ctx_properties['rabbitmq_password']
 
     riemann_config_path = '/etc/riemann'
     riemann_log_path = '/var/log/cloudify/riemann'
@@ -36,7 +42,7 @@ def install_riemann():
             'and at least 1 character long in the manager blueprint inputs.')
 
     ctx.instance.runtime_properties['rabbitmq_endpoint_ip'] = \
-        utils.get_rabbitmq_endpoint_ip()
+        utils.get_rabbitmq_endpoint_ip(ctx_properties)
 
     ctx.logger.info('Installing Riemann...')
     utils.set_selinux_permissive()

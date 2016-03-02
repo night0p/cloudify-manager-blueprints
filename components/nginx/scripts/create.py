@@ -10,16 +10,19 @@ import utils
 
 CONFIG_PATH = 'components/nginx/config'
 
+ctx_properties = utils.CtxPropertyFactory().create('nginx')
+
 
 def install_nginx():
-    nginx_source_url = ctx.node.properties['nginx_rpm_source_url']
+
+    nginx_source_url = ctx_properties['nginx_rpm_source_url']
 
     # this is a bit tricky. the rest_service_source_url contains files that
     # should be deployed in the fileserver. the thing is, that since the
     # rest service and nginx cannot be distributed between vms right now
     # anyway, these resources are deployed by the rest service node instead.
     # rest_service_source_url = \
-    #     ctx.node.properties['rest_service_module_source_url']
+    #     ctx_properties['rest_service_module_source_url']
 
     nginx_log_path = '/var/log/cloudify/nginx'
     manager_resources_home = '/opt/manager/resources'

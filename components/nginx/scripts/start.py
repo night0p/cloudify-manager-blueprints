@@ -9,4 +9,4 @@ import utils
 
 
 ctx.logger.info('Starting Nginx Service...')
-utils.systemd.start('nginx')
+utils.start_service_and_archive_properties('nginx')

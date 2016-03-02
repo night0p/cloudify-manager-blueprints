@@ -8,9 +8,13 @@ from cloudify import ctx
 ctx.download_resource('components/utils.py', jn(dn(__file__), 'utils.py'))
 import utils
 
+ctx_factory = utils.CtxPropertyFactory()
+ctx_properties = ctx_factory.create('java')
 
 def install_java():
-    java_source_url = ctx.node.properties['java_rpm_source_url']
+
+
+    java_source_url = ctx_properties['java_rpm_source_url']
 
     ctx.logger.info('Installing Java...')
     utils.set_selinux_permissive()
@@ -29,3 +33,4 @@ def install_java():
 
 
 install_java()
+ctx_factory.archive_properties('java')

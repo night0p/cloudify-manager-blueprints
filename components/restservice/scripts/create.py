@@ -2,7 +2,6 @@
 
 import os
 from os.path import (join as jn, dirname as dn)
-
 from cloudify import ctx
 
 ctx.download_resource('components/utils.py', jn(dn(__file__), 'utils.py'))
@@ -16,9 +15,11 @@ REST_RESOURCES_PATH = 'resources/rest'
 REST_SERVICE_HOME = '/opt/manager'
 MANAGER_RESOURCES_HOME = '/opt/manager/resources'
 
+ctx_properties = utils.CtxPropertyFactory().create('cloudify-restservice')
+
 
 def install_optional(rest_venv):
-    props = ctx.node.properties
+    props = ctx_properties
 
     dsl_parser_source_url = props['dsl_parser_module_source_url']
     rest_client_source_url = props['rest_client_module_source_url']
@@ -55,7 +56,7 @@ def install_optional(rest_venv):
         utils.install_python_package('/tmp/rest-service', rest_venv)
         ctx.logger.info('Deploying Required Manager Resources...')
         utils.move(
-            '/tmp/resources/rest-service/cloudify/', MANAGER_RESOURCES_HOME)
+                '/tmp/resources/rest-service/cloudify/', MANAGER_RESOURCES_HOME)
 
 
 def deploy_broker_configuration():
@@ -67,16 +68,16 @@ def deploy_broker_configuration():
     ctx.instance.runtime_properties['es_endpoint_ip'] = \
         os.environ['ES_ENDPOINT_IP']
     ctx.instance.runtime_properties['rabbitmq_endpoint_ip'] = \
-        utils.get_rabbitmq_endpoint_ip()
+        utils.get_rabbitmq_endpoint_ip(ctx_properties)
 
-    rabbitmq_ssl_enabled = ctx.node.properties['rabbitmq_ssl_enabled']
-    rabbitmq_cert_public = ctx.node.properties['rabbitmq_cert_public']
+    rabbitmq_ssl_enabled = ctx_properties['rabbitmq_ssl_enabled']
+    rabbitmq_cert_public = ctx_properties['rabbitmq_cert_public']
 
     # Add certificate and select port, as applicable
     if rabbitmq_ssl_enabled:
         broker_cert_path = os.path.join(REST_SERVICE_HOME, 'amqp_pub.pem')
         utils.deploy_ssl_certificate(
-            'public', broker_cert_path, 'root', rabbitmq_cert_public)
+                'public', broker_cert_path, 'root', rabbitmq_cert_public)
         ctx.instance.runtime_properties['broker_cert_path'] = broker_cert_path
         # Use SSL port
         ctx.instance.runtime_properties['broker_port'] = broker_port_ssl
@@ -100,12 +101,13 @@ def configure_dbus(rest_venv):
     ctx.logger.info('if os.path.isdir(dbuslib) {0}'.format(
             os.path.isdir(dbuslib)))
     if os.path.isdir(dbuslib):
-        utils.ln(source=dbuslib, target=os.path.join(
-                rest_venv, dbus_relative_path), params='-sf')
-        utils.ln(source=dbus_glib_bindings, target=os.path.join(
-                rest_venv, site_packages), params='-sf')
-        utils.ln(source=dbus_bindings, target=os.path.join(
-                rest_venv, dbus_relative_path), params='-sf')
+        dbus_venv_path = os.path.join(rest_venv, dbus_relative_path)
+        if not os.path.islink(dbus_venv_path):
+            utils.ln(source=dbuslib, target=dbus_venv_path, params='-sf')
+            utils.ln(source=dbus_bindings, target=dbus_venv_path, params='-sf')
+        if not os.path.islink(os.path.join(rest_venv, site_packages)):
+            utils.ln(source=dbus_glib_bindings, target=os.path.join(
+                    rest_venv, site_packages), params='-sf')
     else:
         ctx.logger.warn(
                 'Could not find dbus install, cfy status will not work')
@@ -114,7 +116,7 @@ def configure_dbus(rest_venv):
 def install_restservice():
 
     rest_service_rpm_source_url = \
-        ctx.node.properties['rest_service_rpm_source_url']
+        ctx_properties['rest_service_rpm_source_url']
 
     rest_venv = os.path.join(REST_SERVICE_HOME, 'env')
     # Also, manager_rest_config_path is mandatory since the manager's code
@@ -155,7 +157,8 @@ def install_restservice():
     # We need to change that if we want to deploy nginx on another machine.
     utils.deploy_blueprint_resource(
         os.path.join(CONFIG_PATH, 'cloudify-rest.conf'),
-        os.path.join(REST_SERVICE_HOME, 'cloudify-rest.conf'))
+        os.path.join(REST_SERVICE_HOME, 'cloudify-rest.conf'),
+        params=ctx_properties)
     configure_dbus(rest_venv)
 
 

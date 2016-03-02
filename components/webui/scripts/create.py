@@ -10,13 +10,16 @@ import utils
 
 
 CONFIG_PATH = 'components/webui/config'
+WEBUI_INPUTS_PATH = '/opt/cloudify/inputs/webui'
+
+ctx_properties = utils.CtxPropertyFactory().create('cloudify-webui')
 
 
 def install_webui():
 
-    nodejs_source_url = ctx.node.properties['nodejs_tar_source_url']
-    webui_source_url = ctx.node.properties['webui_tar_source_url']
-    grafana_source_url = ctx.node.properties['grafana_tar_source_url']
+    nodejs_source_url = ctx_properties['nodejs_tar_source_url']
+    webui_source_url = ctx_properties['webui_tar_source_url']
+    grafana_source_url = ctx_properties['grafana_tar_source_url']
 
     # injected as an input to the script
     ctx.instance.runtime_properties['influxdb_endpoint_ip'] = \
