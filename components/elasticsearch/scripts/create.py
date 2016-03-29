@@ -8,6 +8,8 @@ from os.path import join, dirname
 
 from cloudify import ctx
 
+ES_DATA_PATH = '/tmp/es_data'
+
 ctx.download_resource(
     join('components', 'utils.py'),
     join(dirname(__file__), 'utils.py'))
@@ -15,6 +17,9 @@ import utils  # NOQA
 
 
 CONFIG_PATH = "components/elasticsearch/config"
+ES_SERVICE_NAME = 'elasticsearch'
+
+ctx_properties = utils.ctx_factory.create('elasticsearch')
 
 
 def http_request(url, data=None, method='PUT'):
@@ -32,6 +37,7 @@ def http_request(url, data=None, method='PUT'):
 def _configure_elasticsearch(host, port):
 
     storage_endpoint = 'http://{0}:{1}/cloudify_storage/'.format(host, port)
+    events_endpoint = 'http://{0}:{1}/cloudify_events/'.format(host, port)
     storage_settings = json.dumps({
         "settings": {
             "analysis": {
@@ -44,6 +50,9 @@ def _configure_elasticsearch(host, port):
 
     ctx.logger.info('Deleting `cloudify_storage` index if exists...')
     http_request(storage_endpoint, method='DELETE')
+    ctx.logger.info('Deleting `cloudify_events` index if exists...')
+    http_request(events_endpoint, method='DELETE')
+
     ctx.logger.info('Creating `cloudify_storage` index...')
     http_request(storage_endpoint, storage_settings, 'PUT')
 
@@ -130,19 +139,19 @@ def _configure_index_rotation():
                     'logstash-YYYY.mm.dd index patterns...')
     utils.deploy_blueprint_resource(
         'components/elasticsearch/scripts/rotate_es_indices',
-        '/etc/cron.daily/rotate_es_indices')
+        '/etc/cron.daily/rotate_es_indices', ES_SERVICE_NAME)
     utils.chown('root', 'root', '/etc/cron.daily/rotate_es_indices')
     # VALIDATE!
     utils.sudo('chmod +x /etc/cron.daily/rotate_es_indices')
 
 
 def _install_elasticsearch():
-    es_java_opts = ctx.node.properties['es_java_opts']
-    es_heap_size = ctx.node.properties['es_heap_size']
+    es_java_opts = ctx_properties['es_java_opts']
+    es_heap_size = ctx_properties['es_heap_size']
 
-    es_source_url = ctx.node.properties['es_rpm_source_url']
+    es_source_url = ctx_properties['es_rpm_source_url']
     es_curator_rpm_source_url = \
-        ctx.node.properties['es_curator_rpm_source_url']
+        ctx_properties['es_curator_rpm_source_url']
 
     # this will be used only if elasticsearch-curator is not installed via
     # an rpm and an internet connection is available
@@ -160,7 +169,7 @@ def _install_elasticsearch():
     utils.mkdir(es_home)
     utils.mkdir(es_logs_path)
 
-    utils.yum_install(es_source_url)
+    utils.yum_install(es_source_url, service_name=ES_SERVICE_NAME)
 
     ctx.logger.info('Chowning {0} by elasticsearch user...'.format(
         es_logs_path))
@@ -170,24 +179,26 @@ def _install_elasticsearch():
     utils.mkdir(es_unit_override)
     utils.deploy_blueprint_resource(
         os.path.join(CONFIG_PATH, 'restart.conf'),
-        os.path.join(es_unit_override, 'restart.conf'))
+        os.path.join(es_unit_override, 'restart.conf'), ES_SERVICE_NAME)
 
     ctx.logger.info('Deploying Elasticsearch Configuration...')
     utils.deploy_blueprint_resource(
         os.path.join(CONFIG_PATH, 'elasticsearch.yml'),
-        os.path.join(es_conf_path, 'elasticsearch.yml'))
+        os.path.join(es_conf_path, 'elasticsearch.yml'), ES_SERVICE_NAME)
     utils.chown('elasticsearch', 'elasticsearch',
                 os.path.join(es_conf_path, 'elasticsearch.yml'))
 
     ctx.logger.info('Deploying elasticsearch logging configuration file...')
     utils.deploy_blueprint_resource(
         os.path.join(CONFIG_PATH, 'logging.yml'),
-        os.path.join(es_conf_path, 'logging.yml'))
+        os.path.join(es_conf_path, 'logging.yml'), ES_SERVICE_NAME)
     utils.chown('elasticsearch', 'elasticsearch',
                 os.path.join(es_conf_path, 'logging.yml'))
 
     ctx.logger.info('Setting Elasticsearch Heap Size...')
     # we should treat these as templates.
+
+    # TODO: FIX THIS
     utils.replace_in_file(
         '#ES_HEAP_SIZE=2g',
         'ES_HEAP_SIZE={0}'.format(es_heap_size),
@@ -209,35 +220,43 @@ def _install_elasticsearch():
         '#ES_GC_LOG_FILE=/var/log/elasticsearch/gc.log',
         'ES_GC_LOG_FILE={0}'.format(os.path.join(es_logs_path, 'gc.log')),
         '/etc/sysconfig/elasticsearch')
-    utils.logrotate('elasticsearch')
+    utils.logrotate(ES_SERVICE_NAME)
 
     ctx.logger.info('Installing Elasticsearch Curator...')
     if not es_curator_rpm_source_url:
         ctx.install_python_package('elasticsearch-curator=={0}'.format(
             es_curator_version))
     else:
-        utils.yum_install(es_curator_rpm_source_url)
+        utils.yum_install(es_curator_rpm_source_url,
+                          service_name=ES_SERVICE_NAME)
 
     _configure_index_rotation()
 
     # elasticsearch provides a systemd init env. we just enable it.
-    utils.systemd.enable('elasticsearch')
+    utils.systemd.enable(ES_SERVICE_NAME, append_prefix=False)
+
+
+def _get_es_install_port():
+    es_props = utils.ctx_factory.load_install_properties(ES_SERVICE_NAME)
+    return es_props['es_endpoint_port']
 
 
 def main():
 
-    es_endpoint_ip = ctx.node.properties['es_endpoint_ip']
-    es_endpoint_port = ctx.node.properties['es_endpoint_port']
+    es_endpoint_ip = ctx_properties['es_endpoint_ip']
+    es_endpoint_port = ctx_properties['es_endpoint_port']
 
-    if not es_endpoint_ip:
+    if utils.is_upgrade:
+        _dump_es_data()
+
+    if not ctx_properties['es_endpoint_ip']:
         es_endpoint_ip = ctx.instance.host_ip
+
         _install_elasticsearch()
+        _restart_es(es_endpoint_ip, es_endpoint_port)
 
-        utils.systemd.start('elasticsearch')
-        utils.wait_for_port(es_endpoint_port, es_endpoint_ip)
-        _configure_elasticsearch(host=es_endpoint_ip, port=es_endpoint_port)
-
-        utils.systemd.stop('elasticsearch')
+        _configure_elasticsearch(host=es_endpoint_ip,
+                                 port=es_endpoint_port)
         utils.clean_var_log_dir('elasticsearch')
     else:
         ctx.logger.info('External Elasticsearch Endpoint provided: '
@@ -247,14 +266,73 @@ def main():
         ctx.logger.info('Checking if \'cloudify_storage\' '
                         'index already exists...')
 
+        # TODO: The index is being deleted in _configure_elasticsearch.
+        # why validate?
         if http_request('http://{0}:{1}/cloudify_storage'.format(
                 es_endpoint_ip, es_endpoint_port), method='HEAD'):
-            utils.error_exit('\'cloudify_storage\' index already exists on '
-                             '{0}, terminating bootstrap...'.format(
+            utils.error_exit('\'cloudify_storage\' index already exists on'
+                             ' {0}, terminating bootstrap...'.format(
                                  es_endpoint_ip))
-        _configure_elasticsearch(host=es_endpoint_ip, port=es_endpoint_port)
+        _configure_elasticsearch(host=es_endpoint_ip,
+                                 port=es_endpoint_port)
+
+    if utils.is_upgrade:
+        _restore_es_data(es_endpoint_ip)
 
     ctx.instance.runtime_properties['es_endpoint_ip'] = es_endpoint_ip
+
+
+def _restart_es(es_endpoint_ip, es_endpoint_port):
+    utils.systemd.restart(ES_SERVICE_NAME, append_prefix=False)
+    utils.wait_for_port(es_endpoint_port, es_endpoint_ip)
+
+
+def _get_es_install_endpoint():
+    es_props = utils.ctx_factory.load_install_properties(ES_SERVICE_NAME)
+    if es_props['es_endpoint_ip']:
+        es_endpoint = es_props['es_endpoint_ip']
+    else:
+        es_endpoint = ctx.instance.host_ip
+    return es_endpoint
+
+
+def _dump_es_data():
+    if os.path.isfile(join(ES_DATA_PATH, 'es_data')):
+        return
+    port = _get_es_install_port()
+    endpoint = _get_es_install_endpoint()
+    utils.mkdir(ES_DATA_PATH, use_sudo=False)
+    ctx.logger.info('Dumping elasticsearch data from {0}:{1}...'
+                    .format(endpoint, port))
+    _dump_or_restore_data(endpoint, port, is_dump=True)
+
+
+def _restore_es_data(endpoint):
+    port = ctx_properties['es_endpoint_port']
+    ctx.logger.info('Restoring elasticsearch data to {0}:{1}...'
+                    .format(endpoint, port))
+    _dump_or_restore_data(endpoint, port, is_dump=False)
+
+
+def _dump_or_restore_data(endpoint, port, is_dump):
+    script_path = download_dump_restore_script()
+    utils.run([utils.MGMT_WORKER_BIN_PYTHON,
+               script_path,
+               endpoint,
+               str(port),
+               str(is_dump),
+               ES_DATA_PATH])
+
+
+def download_dump_restore_script():
+    script_path = os.path.join(os.path.dirname(__file__),
+                               '{0}_dump_and_restore.py'
+                               .format(ES_SERVICE_NAME))
+    if not os.path.isfile(script_path):
+        ctx.download_resource(
+                os.path.join('components', ES_SERVICE_NAME, 'scripts',
+                             'dump_and_restore.py'), script_path)
+    return script_path
 
 
 main()

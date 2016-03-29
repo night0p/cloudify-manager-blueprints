@@ -11,6 +11,8 @@ ctx.download_resource(
     join(dirname(__file__), 'utils.py'))
 import utils  # NOQA
 
+REST_SERVICE_NAME = 'restservice'
+
 
 def preconfigure_restservice():
 
@@ -24,7 +26,7 @@ def preconfigure_restservice():
         f.write(sec_config)
     utils.move(path, os.path.join(rest_service_home, 'rest-security.conf'))
 
-    utils.systemd.configure('restservice')
+    utils.systemd.configure(REST_SERVICE_NAME, render=False)
 
 
 preconfigure_restservice()
