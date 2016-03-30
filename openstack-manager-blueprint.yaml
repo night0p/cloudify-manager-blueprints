@@ -144,6 +144,12 @@ inputs:
   agent_rest_password:
     default: cfy_agent
 
+  rest_host_for_external_requests:
+    default: hostname
+
+  rest_host_for_internal_requests:
+    default: private_ip
+
   insecure_endpoints_disabled:
     description: Disables insecure REST endpoints
     type: boolean
