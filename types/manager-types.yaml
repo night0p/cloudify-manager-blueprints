@@ -909,7 +909,7 @@ relationships:
       target_interfaces:
         cloudify.interfaces.relationship_lifecycle:
           preconfigure:
-            implementation: fabric.fabric_plugin.tasks.run_script
+            implementation: components/restservice/scripts/preconfigure.py
             inputs:
               script_path:
                 default: components/restservice/scripts/preconfigure.py

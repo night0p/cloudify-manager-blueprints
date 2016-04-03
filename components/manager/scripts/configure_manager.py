@@ -8,11 +8,11 @@ def get_hostname():
 
 
 ctx.logger.info('Reading rest_host_for_internal_requests Property...')
-rest_host_for_internal_requests = ctx.node.properties.rest_host_for_internal_requests
+rest_host_for_internal_requests = ctx.node.properties['rest_host_for_internal_requests']
 ctx.logger.info('rest_host_for_internal_requests is: {0}'.format(rest_host_for_internal_requests))
 
 ctx.logger.info('Reading rest_host_for_external_requests Property...')
-rest_host_for_external_requests = ctx.node.properties.rest_host_for_external_requests
+rest_host_for_external_requests = ctx.node.properties['rest_host_for_external_requests']
 ctx.logger.info('rest_host_for_external_requests is: {0}'.format(rest_host_for_external_requests))
 
 ctx.logger.info('got hostname: {0}'.format(get_hostname()))
