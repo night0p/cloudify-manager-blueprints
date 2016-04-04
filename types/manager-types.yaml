@@ -477,7 +477,7 @@ node_types:
           implementation: fabric.fabric_plugin.tasks.run_script
           inputs:
             script_path:
-              default: components/riemann/scripts/configure.sh
+              default: components/riemann/scripts/configure.py
             fabric_env: *simple_fabric_env
         start:
           implementation: fabric.fabric_plugin.tasks.run_script
@@ -684,7 +684,7 @@ node_types:
           implementation: fabric.fabric_plugin.tasks.run_script
           inputs:
             script_path:
-              default: components/mgmtworker/scripts/configure.sh
+              default: components/mgmtworker/scripts/configure.py
             fabric_env: *simple_fabric_env
         start:
           implementation: fabric.fabric_plugin.tasks.run_script
@@ -876,7 +876,7 @@ relationships:
           implementation: fabric.fabric_plugin.tasks.run_script
           inputs:
             script_path:
-              default: components/mgmtworker/scripts/preconfigure.sh
+              default: components/mgmtworker/scripts/preconfigure.py
             fabric_env: *simple_fabric_env
 
   riemann_to_manager_configuration:
@@ -887,7 +887,7 @@ relationships:
           implementation: fabric.fabric_plugin.tasks.run_script
           inputs:
             script_path:
-              default: components/riemann/scripts/preconfigure.sh
+              default: components/riemann/scripts/preconfigure.py
             fabric_env: *simple_fabric_env
 
   nginx_to_manager_configuration:

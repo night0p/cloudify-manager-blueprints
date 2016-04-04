@@ -10,9 +10,6 @@ ctx.download_resource(
 import utils  # NOQA
 
 
-CONFIG_PATH = 'components/riemann/config'
-
-
 def install_riemann():
     langohr_source_url = ctx.node.properties['langohr_jar_source_url']
     daemonize_source_url = ctx.node.properties['daemonize_rpm_source_url']
@@ -62,27 +59,5 @@ def install_riemann():
     manager_repo = utils.download_cloudify_resource(cloudify_resources_url)
     ctx.logger.info('Extracting Manager Repository...')
     utils.untar(manager_repo, '/tmp')
-    ctx.logger.info('Deploying Riemann manager.config...')
-    utils.move(
-        '/tmp/plugins/riemann-controller/riemann_controller/resources/manager.config',  # NOQA
-        '{0}/conf.d/manager.config'.format(riemann_config_path))
-
-    ctx.logger.info('Deploying Riemann conf...')
-    utils.deploy_blueprint_resource(
-        '{0}/main.clj'.format(CONFIG_PATH),
-        '{0}/main.clj'.format(riemann_config_path))
-
-    # our riemann configuration will (by default) try to read these environment
-    # variables. If they don't exist, it will assume
-    # that they're found at "localhost"
-    # export MANAGEMENT_IP=""
-    # export RABBITMQ_HOST=""
-
-    # we inject the management_ip for both of these to Riemann's systemd
-    # config.
-    # These should be potentially different
-    # if the manager and rabbitmq are running on different hosts.
-    utils.systemd.configure('riemann')
-    utils.clean_var_log_dir('riemann')
 
 install_riemann()

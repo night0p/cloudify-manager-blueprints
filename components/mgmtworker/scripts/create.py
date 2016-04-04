@@ -10,9 +10,6 @@ ctx.download_resource(
 import utils  # NOQA
 
 
-CONFIG_PATH = "components/mgmtworker/config"
-
-
 def _install_optional(mgmtworker_venv):
 
     rest_client_source_url = \
