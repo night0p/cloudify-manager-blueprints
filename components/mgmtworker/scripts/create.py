@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 from os.path import join, dirname
 
 from cloudify import ctx
@@ -123,21 +122,6 @@ def install_mgmtworker():
 
     ctx.logger.info("broker_port: {0}".format(
         ctx.instance.runtime_properties['broker_port']))
-    ctx.logger.info('Configuring Management worker...')
-    # Deploy the broker configuration
-    # TODO: This will break interestingly if mgmtworker_venv is empty.
-    # Some sort of check for that would be sensible.
-    # To sandy: I don't quite understand this check...
-    # there is no else here..
-    # for python_path in ${mgmtworker_venv}/lib/python*; do
-    if os.path.isfile(os.path.join(mgmtworker_venv, 'bin/python')):
-        broker_conf_path = os.path.join(celery_work_dir, 'broker_config.json')
-        utils.deploy_blueprint_resource(
-            '{0}/broker_config.json'.format(CONFIG_PATH), broker_conf_path)
-        # The config contains credentials, do not let the world read it
-        utils.sudo(['chmod', '440', broker_conf_path])
-    utils.logrotate('mgmtworker')
-    utils.systemd.configure('mgmtworker')
 
 
 install_mgmtworker()
