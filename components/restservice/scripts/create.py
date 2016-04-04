@@ -56,6 +56,11 @@ def install_optional(rest_venv):
         ctx.logger.info('Installing REST Service...')
         utils.install_python_package('/tmp/rest-service', rest_venv)
         ctx.logger.info('Deploying Required Manager Resources...')
+        try:
+            utils.remove_dir('/opt/manager/resources')
+        except Exception as e:
+            ctx.logger.info('did not remove /opt/manager/resources, error: {0}'
+                            .format(e))
         utils.move(
             '/tmp/resources/rest-service/cloudify/', MANAGER_RESOURCES_HOME)
 
