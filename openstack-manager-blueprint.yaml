@@ -638,7 +638,9 @@ node_templates:
         target_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             postconfigure:
-             implementation: components/manager/scripts/set_manager_public_ip.py
+              implementation: components/manager/scripts/set_manager_public_ip.py
+              inputs:
+                public_ip: { get_attribute: [manager_server_ip, floating_ip_address] }
 
   management_keypair:
     type: cloudify.openstack.nodes.KeyPair
