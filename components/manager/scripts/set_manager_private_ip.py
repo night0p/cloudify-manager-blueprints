@@ -18,6 +18,6 @@ from cloudify import ctx
 
 
 ctx.logger.info('Setting Private Manager IP Runtime Property.')
-manager_ip = ctx.source.instance.runtime_properties['host_ip']
+manager_ip = ctx.source.instance.host_ip
 ctx.logger.info('Manager Private IP is: {0}'.format(manager_ip))
-ctx.target.instance.runtime_properties['manager_private_ip'] = manager_ip
+ctx.target.instance.runtime_properties['manager_host_ip'] = manager_ip
