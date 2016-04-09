@@ -1,6 +1,6 @@
 from cloudify import ctx
-from cloudify.state import ctx_parameters as inputs
 import socket
+import os
 
 
 def get_hostname():
@@ -23,7 +23,10 @@ manager_private_ip = ctx.node.instance.host_ip
 ctx.logger.info('Manager Private IP is: {0}'.format(manager_private_ip))
 
 ctx.logger.info('Setting Public Manager IP Runtime Property.')
-manager_ip = inputs['public_ip']
+for env_var in os.environ.keys():
+    print '***** DEBUG env var: {0}'.format(env_var)
+
+manager_ip = os.environ['public_ip']
 ctx.logger.info('Manager Public IP is: {0}'.format(manager_ip))
 ctx.source.instance.runtime_properties['public_ip'] = manager_ip
 

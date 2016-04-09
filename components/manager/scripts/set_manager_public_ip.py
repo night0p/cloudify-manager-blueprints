@@ -18,6 +18,6 @@ from cloudify.state import ctx_parameters as inputs
 
 
 ctx.logger.info('Setting Public Manager IP Runtime Property.')
-manager_ip = inputs['public_ip']
-ctx.logger.info('Manager Public IP is: {0}'.format(manager_ip))
-ctx.source.instance.runtime_properties['public_ip'] = manager_ip
+public_ip = inputs['public_ip']
+ctx.logger.info('Manager Public IP is: {0}'.format(public_ip))
+ctx.source.instance.runtime_properties['public_ip'] = public_ip

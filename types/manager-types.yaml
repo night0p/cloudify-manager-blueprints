@@ -866,7 +866,21 @@ relationships:
     derived_from: cloudify.relationships.connected_to
     target_interfaces:
       cloudify.interfaces.relationship_lifecycle:
-        postconfigure: components/manager/scripts/set_manager_private_ip.py
+        postconfigure:
+          implementation: components/manager/scripts/set_manager_private_ip.py
+
+  manager_configuration_to_manager_host:
+    derived_from: cloudify.relationships.contained_in
+    target_interfaces:
+      cloudify.interfaces.relationship_lifecycle:
+        postconfigure:
+          implementation: fabric.fabric_plugin.tasks.run_script
+          inputs:
+            script_path:
+              default: components/manager/scripts/set_manager_public_ip.py
+            fabric_env: *simple_fabric_env
+            PUBLIC_IP:
+              default: { get_attribute: [manager_server_ip, floating_ip_address] }
 
   mgmtworker_to_manager_configuration:
     derived_from: cloudify.relationships.depends_on
@@ -902,7 +916,8 @@ relationships:
             fabric_env: *simple_fabric_env
     target_interfaces:
       cloudify.interfaces.relationship_lifecycle:
-        postconfigure: components/manager/scripts/set_manager_private_ip.py
+        postconfigure:
+          implementation: components/manager/scripts/set_manager_private_ip.py
 
   rest_to_mgr_config:
       derived_from: cloudify.relationships.depends_on

@@ -16,11 +16,8 @@
 
 from cloudify import ctx
 
-# TODO: ask NirC if this is ok
+
 ctx.logger.info('Setting Private Manager IP Runtime Property.')
-manager_private_ip = ctx.source.instance.host_ip
-ctx.logger.info('Manager Private IP is: {0}'.format(manager_private_ip))
-manager_public_ip = ctx.target.instance.runtime_properties['public_ip']
-ctx.logger.info('Manager public IP is: {0}'.format(manager_public_ip))
-# ctx.target.instance.runtime_properties['manager_host_ip'] = manager_private_ip
-ctx.target.instance.runtime_properties['manager_host_ip'] = manager_public_ip
+manager_ip = ctx.source.instance.runtime_properties['host_ip']
+ctx.logger.info('Manager Private IP is: {0}'.format(manager_ip))
+ctx.target.instance.runtime_properties['manager_private_ip'] = manager_ip
