@@ -6,7 +6,6 @@ import os
 def get_hostname():
     return socket.gethostname()
 
-
 ctx.logger.info('Reading rest_host_for_internal_requests Property...')
 rest_host_for_internal_requests = ctx.node.properties['rest_host_for_internal_requests']
 ctx.logger.info('rest_host_for_internal_requests is: {0}'.format(rest_host_for_internal_requests))
