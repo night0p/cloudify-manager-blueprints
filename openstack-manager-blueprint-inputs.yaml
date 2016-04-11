@@ -269,11 +269,11 @@ agents_user: ''
 #################################
 # acceptable values for REST host identifier for external requests:
 # hostname, public_ip
-#rest_host_for_external_requests: hostname
+#rest_host_external_identifier: public_ip
 
 # acceptable values for REST host identifier for internal requests:
 # hostname, public_ip, private_ip
-#rest_host_for_internal_requests: private_ip
+#rest_host_internal_identifier: private_ip
 
 #############################
 # Offline Resources Upload

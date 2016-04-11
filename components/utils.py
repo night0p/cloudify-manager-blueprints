@@ -524,7 +524,3 @@ def untar(source, destination='/tmp', strip=1):
     ctx.logger.debug('Extracting {0} to {1}...'.format(source, destination))
     sudo(['tar', '-xzvf', source, '-C', destination,
           '--strip={0}'.format(strip)])
-
-
-def get_hostname():
-    print(socket.gethostname())

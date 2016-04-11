@@ -39,4 +39,4 @@ def configure_riemann():
     utils.systemd.configure('riemann')
     utils.clean_var_log_dir('riemann')
 
-configure_riemann
+configure_riemann()

@@ -30,27 +30,10 @@ def preconfigure_restservice():
 
 preconfigure_restservice()
 
-ctx.logger.info('Reading rest_host_for_internal_requests Property...')
-rest_host_for_internal_requests = ctx.source.node.properties['rest_host_for_internal_requests']
-ctx.logger.info('rest_host_for_internal_requests is: {0}'.format(rest_host_for_internal_requests))
+ctx.logger.info('Reading internal_rest_host property from manager_configuration...')
+internal_rest_host = ctx.target.node.properties['internal_rest_host']
+ctx.logger.info('internal_rest_host is: {0}'.format(internal_rest_host))
 
-ctx.logger.info('Reading rest_host_for_external_requests Property...')
-rest_host_for_external_requests = ctx.source.node.properties['rest_host_for_external_requests']
-ctx.logger.info('rest_host_for_external_requests is: {0}'.format(rest_host_for_external_requests))
-
-ctx.logger.info('got hostname: {0}'.format(utils.get_hostname()))
-
-# TODO: ask NirC if this is ok
-ctx.logger.info('Setting Private Manager IP Runtime Property.')
-manager_private_ip = ctx.source.instance.runtime_properties['host_ip']
-ctx.logger.info('Manager Private IP is: {0}'.format(manager_private_ip))
-
-ctx.logger.info('Setting Public Manager IP Runtime Property.')
-manager_ip = ctx.target.instance.runtime_properties['public_ip']
-ctx.logger.info('Manager Public IP is: {0}'.format(manager_ip))
-ctx.source.instance.runtime_properties['public_ip'] = manager_ip
-
-manager_public_ip = ctx.source.instance.runtime_properties['public_ip']
-ctx.logger.info('Manager public IP is: {0}'.format(manager_public_ip))
-# ctx.target.instance.runtime_properties['manager_host_ip'] = manager_private_ip
-ctx.target.instance.runtime_properties['manager_host_ip'] = manager_public_ip
+ctx.logger.info('Reading external_rest_host property from manager_configuration...')
+external_rest_host = ctx.target.node.properties['external_rest_host']
+ctx.logger.info('external_rest_host is: {0}'.format(external_rest_host))

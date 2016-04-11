@@ -560,16 +560,16 @@ node_types:
         default: { get_input: elasticsearch_endpoint_port }
       # acceptable values for REST host identifier for external requests:
       # hostname, public_ip
-      rest_host_for_external_requests:
+      rest_host_external_identifier:
         description: host identifier for external requests to the REST service
         type: string
-        default: { get_input: rest_host_for_external_requests }
+        default: { get_input: rest_host_external_identifier }
       # acceptable values for REST host identifier for internal requests:
       # hostname, public_ip, private_ip
-      rest_host_for_internal_requests:
+      rest_host_internal_identifier:
         description: host identifier for internal requests to the REST service
         type: string
-        default: { get_input: rest_host_for_internal_requests }
+        default: { get_input: rest_host_internal_identifier }
       insecure_endpoints_disabled:
         description: Disables insecure REST endpoints
         type: boolean
@@ -869,19 +869,6 @@ relationships:
         postconfigure:
           implementation: components/manager/scripts/set_manager_private_ip.py
 
-  manager_configuration_to_manager_host:
-    derived_from: cloudify.relationships.contained_in
-    target_interfaces:
-      cloudify.interfaces.relationship_lifecycle:
-        postconfigure:
-          implementation: fabric.fabric_plugin.tasks.run_script
-          inputs:
-            script_path:
-              default: components/manager/scripts/set_manager_public_ip.py
-            fabric_env: *simple_fabric_env
-            PUBLIC_IP:
-              default: { get_attribute: [manager_server_ip, floating_ip_address] }
-
   mgmtworker_to_manager_configuration:
     derived_from: cloudify.relationships.depends_on
     target_interfaces:
@@ -919,7 +906,7 @@ relationships:
         postconfigure:
           implementation: components/manager/scripts/set_manager_private_ip.py
 
-  rest_to_mgr_config:
+  rest_to_manager_configuration:
       derived_from: cloudify.relationships.depends_on
       target_interfaces:
         cloudify.interfaces.relationship_lifecycle:
