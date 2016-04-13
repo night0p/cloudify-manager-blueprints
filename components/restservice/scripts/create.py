@@ -140,6 +140,7 @@ def install_restservice():
     utils.mkdir(rest_service_log_path)
     utils.mkdir(MANAGER_RESOURCES_HOME)
 
+    # why is this here and not in rabbitmq?
     deploy_broker_configuration()
     utils.yum_install(rest_service_rpm_source_url)
     _configure_dbus(rest_venv)

@@ -43,4 +43,6 @@ else:
 ctx.logger.info('external_rest_host set to: {0}'.format(
     ctx.source.instance.runtime_properties['external_rest_host']))
 
-# ctx.target.instance.runtime_properties['manager_host_ip'] = manager_private_ip
+ctx.source.instance.runtime_properties['internal_manager_host'] = private_ip
+ctx.logger.info('internal_manager_host set to: {0}'.format(
+    ctx.source.instance.runtime_properties['internal_manager_host']))

@@ -153,7 +153,7 @@ node_types:
               default:
                 user: { get_input: ssh_user }
                 key_filename: { get_input: ssh_key_filename }
-                host_string: { get_attribute: [manager_host, public_ip] }
+                host_string: { get_attribute: [manager_configuration, public_ip] }
                 always_use_pty: true
                 hide: running
 
@@ -586,12 +586,10 @@ node_types:
             ES_ENDPOINT_IP:
               default: { get_attribute: [elasticsearch, es_endpoint_ip] }
         configure:
-          implementation: fabric.fabric_plugin.tasks.run_task
+          implementation: fabric.fabric_plugin.tasks.run_script
           inputs:
-            tasks_file:
-              default: components/restservice/scripts/install_plugins.py
-            task_name:
-              default: install_plugins
+            script_path:
+              default: components/restservice/scripts/configure.py
             fabric_env: *simple_fabric_env
         start:
           implementation: fabric.fabric_plugin.tasks.run_script
@@ -862,12 +860,12 @@ relationships:
   mgmtworker_to_rabbitmq:
     derived_from: cloudify.relationships.connected_to
 
-  mgmtworker_to_nginx:
-    derived_from: cloudify.relationships.connected_to
-    target_interfaces:
-      cloudify.interfaces.relationship_lifecycle:
-        postconfigure:
-          implementation: components/manager/scripts/set_manager_private_ip.py
+#  mgmtworker_to_nginx:
+#    derived_from: cloudify.relationships.connected_to
+#    target_interfaces:
+#      cloudify.interfaces.relationship_lifecycle:
+#        postconfigure:
+#          implementation: components/manager/scripts/set_manager_private_ip.py
 
   mgmtworker_to_manager_configuration:
     derived_from: cloudify.relationships.depends_on
@@ -901,21 +899,29 @@ relationships:
             script_path:
               default: components/nginx/scripts/preconfigure.py
             fabric_env: *simple_fabric_env
-    target_interfaces:
-      cloudify.interfaces.relationship_lifecycle:
-        postconfigure:
-          implementation: components/manager/scripts/set_manager_private_ip.py
+#    target_interfaces:
+#      cloudify.interfaces.relationship_lifecycle:
+#        postconfigure:
+#          implementation: components/manager/scripts/set_manager_private_ip.py
 
   rest_to_manager_configuration:
-      derived_from: cloudify.relationships.depends_on
-      target_interfaces:
-        cloudify.interfaces.relationship_lifecycle:
-          preconfigure:
-            implementation: fabric.fabric_plugin.tasks.run_script
-            inputs:
-              script_path:
-                default: components/restservice/scripts/preconfigure.py
-              fabric_env: *simple_fabric_env
+    derived_from: cloudify.relationships.depends_on
+    target_interfaces:
+      cloudify.interfaces.relationship_lifecycle:
+        preconfigure:
+          implementation: fabric.fabric_plugin.tasks.run_script
+          inputs:
+            script_path:
+              default: components/restservice/scripts/preconfigure.py
+            fabric_env: *simple_fabric_env
+        postconfigure:
+          implementation: fabric.fabric_plugin.tasks.run_task
+          inputs:
+            tasks_file:
+              default: components/restservice/scripts/install_plugins.py
+            task_name:
+              default: install_plugins
+            fabric_env: *simple_fabric_env
 
   amqpinflux_to_rabbitmq:
     derived_from: cloudify.relationships.connected_to
