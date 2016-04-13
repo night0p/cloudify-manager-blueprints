@@ -2,6 +2,8 @@ RIEMANN_CONFIG_PATH="/etc/riemann"
 LANGOHR_HOME="/opt/lib"
 EXTRA_CLASSPATH="/opt/lib/langohr.jar"
 
+
+INTERNAL_MANAGER_HOST="{{ ctx.instance.runtime_properties.manager_host }}"
 MANAGER_REST_HOST="{{ ctx.instance.runtime_properties.rest_host }}"
 MANAGER_REST_PROTOCOL="{{ ctx.instance.runtime_properties.rest_protocol }}"
 MANAGER_REST_PORT="{{ ctx.instance.runtime_properties.rest_port }}"

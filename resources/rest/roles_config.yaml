@@ -25,4 +25,4 @@ deployer:
 viewer:
   allow:
     '*':
-      - GET
+      - GET:
