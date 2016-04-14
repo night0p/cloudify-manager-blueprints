@@ -858,13 +858,6 @@ relationships:
   mgmtworker_to_rabbitmq:
     derived_from: cloudify.relationships.connected_to
 
-#  mgmtworker_to_nginx:
-#    derived_from: cloudify.relationships.connected_to
-#    target_interfaces:
-#      cloudify.interfaces.relationship_lifecycle:
-#        postconfigure:
-#          implementation: components/manager/scripts/set_manager_private_ip.py
-
   mgmtworker_to_manager_configuration:
     derived_from: cloudify.relationships.depends_on
     target_interfaces:
@@ -897,10 +890,6 @@ relationships:
             script_path:
               default: components/nginx/scripts/preconfigure.py
             fabric_env: *simple_fabric_env
-#    target_interfaces:
-#      cloudify.interfaces.relationship_lifecycle:
-#        postconfigure:
-#          implementation: components/manager/scripts/set_manager_private_ip.py
 
   rest_to_manager_configuration:
     derived_from: cloudify.relationships.depends_on
