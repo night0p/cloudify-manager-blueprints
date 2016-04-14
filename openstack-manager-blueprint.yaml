@@ -760,6 +760,8 @@ node_templates:
       management_network_name: { get_property: [management_network, resource_id] }
       openstack_config: *openstack_configuration
     relationships:
+      - target: manager_server_ip
+        type: cloudify.openstack.server_connected_to_floating_ip
       - target: management_keypair
         type: cloudify.openstack.server_connected_to_keypair
       - target: manager_port
