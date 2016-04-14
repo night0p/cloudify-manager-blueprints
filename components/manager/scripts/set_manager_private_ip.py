@@ -12,15 +12,12 @@
 #    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
-
-
-from cloudify import ctx
-
-# TODO: ask NirC if this is ok
-ctx.logger.info('Setting Private Manager IP Runtime Property.')
-manager_private_ip = ctx.source.instance.host_ip
-ctx.logger.info('Manager Private IP is: {0}'.format(manager_private_ip))
-manager_public_ip = ctx.target.instance.runtime_properties['public_ip']
-ctx.logger.info('Manager public IP is: {0}'.format(manager_public_ip))
-# ctx.target.instance.runtime_properties['manager_host_ip'] = manager_private_ip
-ctx.target.instance.runtime_properties['manager_host_ip'] = manager_public_ip
+#
+#
+# from cloudify import ctx
+#
+#
+# ctx.logger.info('Setting Private Manager IP Runtime Property.')
+# manager_ip = ctx.source.instance.host_ip
+# ctx.logger.info('Manager Private IP is: {0}'.format(manager_ip))
+# ctx.target.instance.runtime_properties['internal_manager_host'] = manager_ip

@@ -56,6 +56,11 @@ def install_optional(rest_venv):
         ctx.logger.info('Installing REST Service...')
         utils.install_python_package('/tmp/rest-service', rest_venv)
         ctx.logger.info('Deploying Required Manager Resources...')
+        try:
+            utils.remove_dir('/opt/manager/resources')
+        except Exception as e:
+            ctx.logger.info('did not remove /opt/manager/resources, error: {0}'
+                            .format(e))
         utils.move(
             '/tmp/resources/rest-service/cloudify/', MANAGER_RESOURCES_HOME)
 
@@ -135,6 +140,7 @@ def install_restservice():
     utils.mkdir(rest_service_log_path)
     utils.mkdir(MANAGER_RESOURCES_HOME)
 
+    # why is this here and not in rabbitmq?
     deploy_broker_configuration()
     utils.yum_install(rest_service_rpm_source_url)
     _configure_dbus(rest_venv)

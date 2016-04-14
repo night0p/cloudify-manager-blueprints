@@ -264,6 +264,15 @@ agents_user: ''
 # Minimum number of worker processes maintained by the management worker.
 #management_worker_min_workers: 2
 
+#################################
+# REST Configuration
+#################################
+# acceptable values: public_ip, private_ip
+#rest_host_external_identifier: public_ip
+
+# acceptable values: public_ip, private_ip
+#rest_host_internal_identifier: private_ip
+
 #############################
 # Offline Resources Upload
 #############################

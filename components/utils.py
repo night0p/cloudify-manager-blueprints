@@ -141,6 +141,10 @@ def move(source, destination):
     sudo(['mv', source, destination])
 
 
+def remove_dir(directory):
+    sudo(['rm', '-rf', directory])
+
+
 def install_python_package(source, venv=''):
     if venv:
         ctx.logger.info('Installing {0} in virtualenv {1}...'.format(

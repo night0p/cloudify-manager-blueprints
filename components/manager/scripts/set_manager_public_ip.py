@@ -12,12 +12,12 @@
 #    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
-
-from cloudify import ctx
-from cloudify.state import ctx_parameters as inputs
-
-
-ctx.logger.info('Setting Public Manager IP Runtime Property.')
-manager_ip = inputs['public_ip']
-ctx.logger.info('Manager Public IP is: {0}'.format(manager_ip))
-ctx.source.instance.runtime_properties['public_ip'] = manager_ip
+#
+# from cloudify import ctx
+# from cloudify.state import ctx_parameters as inputs
+#
+#
+# ctx.logger.info('Setting Public Manager IP Runtime Property.')
+# public_ip = inputs['public_ip']
+# ctx.logger.info('Manager Public IP is: {0}'.format(public_ip))
+# ctx.source.instance.runtime_properties['public_ip'] = public_ip
