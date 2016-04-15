@@ -19,7 +19,8 @@ REST_SERVICE_HOME = '/opt/manager'
 
 def _deploy_security_configuration():
     ctx.logger.info('Deploying REST Security configuration file...')
-    security_configuration = ctx.instance.runtime_properties['security_configuration']
+    security_configuration = \
+        ctx.instance.runtime_properties['security_configuration']
     fd, path = tempfile.mkstemp()
     os.close(fd)
     with open(path, 'w') as f:

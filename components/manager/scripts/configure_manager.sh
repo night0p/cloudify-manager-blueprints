@@ -3,22 +3,46 @@
 # . $(ctx download-resource "components/utils")
 
 
-function _set_rest_port_and_protocol() {
+function _retrieve_security_settings() {
     security_enabled=$(ctx -j node properties security.enabled)
     ssl_enabled=$(ctx -j node properties security.ssl.enabled)
 
-    ctx instance runtime_properties security_enabled ${security_enabled}
-    ctx instance runtime_properties ssl_enabled ${ssl_enabled}
+    ctx instance runtime-properties security_enabled ${security_enabled}
+    ctx instance runtime-properties ssl_enabled ${ssl_enabled}
 
-    if ${security_enabled} == true && ${ssl_enabled} == true ; then
-        ctx logger info "SSL is enabled, setting rest port to 443 and rest_protocol to https"
-        ctx instance runtime_properties rest_port 443
-        ctx instance runtime_properties rest_protocol https
-        ctx instance runtime_properties verify_certificate $(ctx -j node properties security.ssl.verify_certificate)
+    if ${security_enabled} == true ; then
+        agents_rest_username=$(ctx -j node properties cloudify.cloudify_agent.rest_username)
+        agents_rest_password=$(ctx -j node properties cloudify.cloudify_agent.rest_password)
+        verify_manager_certificate=$(ctx -j node properties cloudify.cloudify_agent.verify_manager_certificate)
+        manager_ssl_certificate=$(ctx -j node properties cloudify.cloudify_agent.manager_ssl_certificate)
+
+        ctx logger info "agents_rest_username: ${agents_rest_username}"
+        ctx logger info "agents_rest_password: ${agents_rest_password}"
+        ctx logger info "verify_manager_certificate: ${verify_manager_certificate}"
+        ctx logger info "manager_ssl_certificate: ${manager_ssl_certificate}"
+
+        ctx instance runtime-properties dummyattr1 "dummyvalue1"
+        ctx logger info "logger1"
+        ctx instance runtime-properties dummyattr2 dummyvalue2
+        ctx logger info "logger2"
+        ctx instance runtime-properties agents_rest_username ${agents_rest_username}
+        ctx logger info "logger3"
+        ctx instance runtime-properties agents_rest_password ${agents_rest_password}
+        ctx logger info "logger4"
+        ctx instance runtime-properties verify_manager_certificate ${verify_manager_certificate}
+        ctx logger info "logger5"
+        ctx instance runtime-properties manager_ssl_certificate "${manager_ssl_certificate}"
+        ctx logger info "logger6"
+
+        if ${ssl_enabled} == true ; then
+            ctx logger info "SSL is enabled, setting rest port to 443 and rest_protocol to https"
+            ctx instance runtime-properties rest_port 443
+            ctx instance runtime-properties rest_protocol https
+        fi
     else
         ctx logger info "Security is off or SSL disabled, setting rest port to 80 and rest protocols to http"
-        ctx instance runtime_properties rest_port 80
-        ctx instance runtime_properties rest_protocol http
+        ctx instance runtime-properties rest_port 80
+        ctx instance runtime-properties rest_protocol http
     fi
 }
 
@@ -91,4 +115,4 @@ function _disable_requiretty() {
 }
 
 _disable_requiretty
-_set_rest_port_and_protocol
+_retrieve_security_settings

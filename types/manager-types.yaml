@@ -34,10 +34,10 @@ node_types:
             task_retry_interval: 30
           policy_engine:
             start_timeout: 30
-          rest_username: ''
-          rest_password: ''
-          verify_manager_certificate: ''
-          ssl_certificate: ''
+#          rest_username: ''
+#          rest_password: ''
+#          verify_manager_certificate: ''
+#          ssl_certificate: ''
       #########################################################################
       # Setting 'enabled' to true will activate security on the REST service,
       # according to the below configuration. Each request received by the

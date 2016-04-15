@@ -635,7 +635,7 @@ node_templates:
     relationships:
       - type: cloudify.relationships.contained_in
         target: manager_host
-        target_interfaces:
+        source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             postconfigure:
               implementation: components/manager/scripts/set_manager_ips.py
