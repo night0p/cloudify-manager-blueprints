@@ -82,6 +82,15 @@ agents_user: ''
 #admin_username: 'admin'
 #admin_password: 'admin'
 
+# Username and password used by Riemann in REST calls
+#riemann_rest_username: 'riemann'
+#riemann_rest_password: 'riemann'
+# True to make Riemann verify the SSL certificate of the manager, False otherwise
+#riemann_verify_manager_certificate: ''
+# Rieman's copy of the manager's SSL certificate, could be used for certificate validation
+#riemann_manager_ssl_certificate: ''
+
+
 # Username and password used by agents in REST calls
 #agent_rest_username: 'cfy_agent'
 #agent_rest_password: 'cfy_agent'

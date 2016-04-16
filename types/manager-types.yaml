@@ -465,6 +465,22 @@ node_types:
         description: RabbitMQ password for access to queues.
         type: string
         default: { get_input: rabbitmq_password }
+      rest_username:
+        description: REST service username
+        type: string
+        default: { get_input: riemann_rest_username }
+      rest_password:
+        description: REST service password
+        type: string
+        default: { get_input: riemann_rest_password }
+      verify_manager_certificate:
+        description: True to verify the SSL certificate of the manager
+        type: boolean
+        default: { get_input: riemann_verify_manager_certificate }
+      manager_ssl_certificate:
+        description: The SSL certificate of the manager
+        type: string
+        default: { get_input: riemann_manager_ssl_certificate }
     interfaces:
       cloudify.interfaces.lifecycle:
         create:

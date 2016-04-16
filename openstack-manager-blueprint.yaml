@@ -149,6 +149,21 @@ inputs:
     type: boolean
     default: false
 
+  riemann_rest_username:
+    default: riemann
+
+  riemann_rest_password:
+    default: 'riemann'
+
+  riemann_verify_manager_certificate:
+    description: Make Riemann verify the SSL certificate of the manager
+    type: boolean
+    default: false
+
+  riemann_manager_ssl_certificate:
+    description: Riemanns copy of the SSL certificate of the manager
+    default: false
+
   #############################
   # Agent Packages
   #############################
@@ -829,19 +844,17 @@ node_templates:
       - type: nginx_to_manager_configuration
         target: manager_configuration
 
-#  riemann:
-#    type: manager.nodes.Riemann
-#    relationships:
-#      - type: cloudify.relationships.contained_in
-#        target: manager_configuration
-#      - type: cloudify.relationships.depends_on
-#        target: java_runtime
-#      - type: riemann_to_manager_configuration
-#        target: manager_configuration
-#      - type: riemann_to_rabbitmq
-#        target: rabbitmq
-#      - type: riemann_to_nginx
-#        target: nginx
+  riemann:
+    type: manager.nodes.Riemann
+    relationships:
+      - type: cloudify.relationships.depends_on
+        target: java_runtime
+      - type: riemann_to_manager_configuration
+        target: manager_configuration
+      - type: riemann_to_rabbitmq
+        target: rabbitmq
+      - type: riemann_to_nginx
+        target: nginx
 
   rest_service:
     type: manager.nodes.RestService
