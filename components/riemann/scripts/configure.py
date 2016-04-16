@@ -28,7 +28,7 @@ def configure_riemann():
     # our riemann configuration will (by default) try to read these environment
     # variables. If they don't exist, it will assume
     # that they're found at "localhost"
-    # export MANAGER_REST_HOST=""
+    # export REST_HOST=""
     # export RABBITMQ_HOST=""
 
     # we inject the management_ip for both of these to Riemann's systemd

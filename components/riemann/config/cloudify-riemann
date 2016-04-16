@@ -4,9 +4,9 @@ EXTRA_CLASSPATH="/opt/lib/langohr.jar"
 
 
 INTERNAL_MANAGER_HOST="{{ ctx.instance.runtime_properties.manager_host }}"
-MANAGER_REST_HOST="{{ ctx.instance.runtime_properties.rest_host }}"
-MANAGER_REST_PROTOCOL="{{ ctx.instance.runtime_properties.rest_protocol }}"
-MANAGER_REST_PORT="{{ ctx.instance.runtime_properties.rest_port }}"
+REST_HOST="{{ ctx.instance.runtime_properties.rest_host }}"
+REST_PROTOCOL="{{ ctx.instance.runtime_properties.rest_protocol }}"
+REST_PORT="{{ ctx.instance.runtime_properties.rest_port }}"
 SECURITY_ENABLED="{{ ctx.instance.runtime_properties.security_enabled }}"
 SSL_ENABLED="{{ ctx.instance.runtime_properties.ssl_enabled }}"
 CLOUDIFY_USERNAME="{{ ctx.node.properties.rest_username }}"

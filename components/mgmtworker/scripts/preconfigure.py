@@ -12,7 +12,7 @@ import utils  # NOQA
 target_runtime_props = ctx.target.instance.runtime_properties
 source_runtime_props = ctx.source.instance.runtime_properties
 
-manager_host = target_runtime_props['internal_manager_host']
+internal_manager_host = target_runtime_props['internal_manager_host']
 rest_host = target_runtime_props['internal_rest_host']
 rest_protocol = target_runtime_props['rest_protocol']
 rest_port = target_runtime_props['rest_port']
@@ -24,7 +24,7 @@ verify_certificate = target_runtime_props['verify_manager_certificate']
 ssl_certificate = target_runtime_props['manager_ssl_certificate']
 
 
-source_runtime_props['manager_host'] = manager_host
+source_runtime_props['internal_manager_host'] = internal_manager_host
 source_runtime_props['rest_host'] = rest_host
 source_runtime_props['rest_protocol'] = rest_protocol
 source_runtime_props['rest_port'] = rest_port
@@ -36,23 +36,23 @@ source_runtime_props['verify_certificate'] = verify_certificate
 source_runtime_props['ssl_certificate'] = ssl_certificate
 
 
-ctx.logger.info('***** debug: MgmtWorker uses manager_host: {0}'
-                .format(manager_host))
-ctx.logger.info('***** debug: MgmtWorker uses rest_host: {0}'
+ctx.logger.info('***** debug: MgmtWorker internal_manager_host: {0}'
+                .format(internal_manager_host))
+ctx.logger.info('***** debug: MgmtWorker rest_host: {0}'
                 .format(rest_host))
-ctx.logger.info('***** debug: MgmtWorker uses rest_protocol: {0}'
+ctx.logger.info('***** debug: MgmtWorker rest_protocol: {0}'
                 .format(rest_protocol))
-ctx.logger.info('***** debug: MgmtWorker uses rest_port: {0}'
+ctx.logger.info('***** debug: MgmtWorker rest_port: {0}'
                 .format(rest_port))
-ctx.logger.info('***** debug: MgmtWorker uses security_enabled: {0}'
+ctx.logger.info('***** debug: MgmtWorker security_enabled: {0}'
                 .format(security_enabled))
-ctx.logger.info('***** debug: MgmtWorker uses ssl_enabled: {0}'
+ctx.logger.info('***** debug: MgmtWorker ssl_enabled: {0}'
                 .format(ssl_enabled))
-ctx.logger.info('***** debug: MgmtWorker uses cloudify_username: {0}'
+ctx.logger.info('***** debug: MgmtWorker cloudify_username: {0}'
                 .format(cloudify_username))
-ctx.logger.info('***** debug: MgmtWorker uses cloudify_password: {0}'
+ctx.logger.info('***** debug: MgmtWorker cloudify_password: {0}'
                 .format(cloudify_password))
-ctx.logger.info('***** debug: MgmtWorker uses verify_certificate: {0}'
+ctx.logger.info('***** debug: MgmtWorker verify_certificate: {0}'
                 .format(verify_certificate))
-ctx.logger.info('***** debug: MgmtWorker uses ssl_certificate: {0}'
+ctx.logger.info('***** debug: MgmtWorker ssl_certificate: {0}'
                 .format(ssl_certificate))
