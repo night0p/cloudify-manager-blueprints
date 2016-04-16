@@ -22,10 +22,10 @@ security_enabled = target_runtime_props['security_enabled']
 ssl_enabled = target_runtime_props['ssl_enabled']
 
 # security settings from Riemann's configuration # currently ignored by riemann
-cloudify_username = ctx.node.properties.rest_username
-cloudify_password = ctx.node.properties.rest_password
-verify_certificate = ctx.node.properties.verify_manager_certificate
-ssl_certificate = ctx.node.properties.manager_ssl_certificate
+cloudify_username = ctx.source.node.properties['rest_username']
+cloudify_password = ctx.source.node.properties['rest_password']
+verify_certificate = ctx.source.node.properties['verify_manager_certificate']
+ssl_certificate = ctx.source.node.properties['manager_ssl_certificate']
 
 
 source_runtime_props['manager_host'] = manager_host
