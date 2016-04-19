@@ -141,6 +141,14 @@ def move(source, destination):
     sudo(['mv', source, destination])
 
 
+def copy(source, destination):
+    sudo(['cp', source, destination])
+
+
+def copy_recursive(source, destination):
+    sudo(['cp', '-r', source, destination])
+
+
 def remove_dir(directory):
     sudo(['rm', '-rf', directory])
 

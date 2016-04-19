@@ -17,6 +17,7 @@ REST_RESOURCES_PATH = 'resources/rest'
 # TODO: change to /opt/cloudify-rest-service
 REST_SERVICE_HOME = '/opt/manager'
 MANAGER_RESOURCES_HOME = '/opt/manager/resources'
+TMP_REST_DIR = '/tmp/rest-service'
 
 
 def install_optional(rest_venv):
@@ -54,15 +55,10 @@ def install_optional(rest_venv):
         utils.untar(manager_repo)
 
         ctx.logger.info('Installing REST Service...')
-        utils.install_python_package('/tmp/rest-service', rest_venv)
+        utils.install_python_package(TMP_REST_DIR, rest_venv)
         ctx.logger.info('Deploying Required Manager Resources...')
-        try:
-            utils.remove_dir('/opt/manager/resources')
-        except Exception as e:
-            ctx.logger.info('did not remove /opt/manager/resources, error: {0}'
-                            .format(e))
-        utils.move(
-            '/tmp/resources/rest-service/cloudify/', MANAGER_RESOURCES_HOME)
+        utils.copy_recursive('/tmp/resources/rest-service/cloudify/', MANAGER_RESOURCES_HOME)
+        utils.remove_dir(TMP_REST_DIR)
 
 
 def deploy_broker_configuration():
