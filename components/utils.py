@@ -18,6 +18,8 @@ from cloudify import ctx
 
 PROCESS_POLLING_INTERVAL = 0.1
 CLOUDIFY_SOURCES_PATH = '/opt/cloudify/sources'
+SSL_CERTS_SOURCE_DIR = 'resources/ssl'
+SSL_CERTS_TARGET_DIR = '/root/cloudify'
 
 
 def retry(exception, tries=4, delay=3, backoff=2):
@@ -151,6 +153,43 @@ def copy_recursive(source, destination):
 
 def remove_dir(directory):
     sudo(['rm', '-rf', directory])
+
+
+def _generate_ssl_cert(cert_filename, key_filename, cn):
+    command_arr = shlex.split('openssl req -x509 -nodes -newkey rsa:2048 '
+                              '-out {1} -keyout {0} -days 3650 -batch '
+                              '-subj \'/CN={2}\''.
+                              format(cert_filename, key_filename, cn))
+    sudo(command_arr)
+
+
+def deploy_ssl_cert_and_key(cert_filename, key_filename, cn=None):
+    """
+    SSL certificate and keys can be supplied by the user in the
+    manager-blueprint 'resources/ssl' directory.
+    If SSL certs were supplied - Cloudify will use them,
+    otherwise - they will be generated
+    :param cert_filename: the name of the certificate file (e.g. internal_rest_host.crt)
+    :param key_filename: the name of the key file (e.g. internal_rest_host.key)
+    :param cn: the common name to use for certificates creation (e.g. myserver.com)
+    """
+    mkdir(SSL_CERTS_TARGET_DIR)
+    cert_source_path = os.path.join(SSL_CERTS_SOURCE_DIR, cert_filename)
+    key_source_path = os.path.join(SSL_CERTS_SOURCE_DIR, key_filename)
+    if not os.path.isfile(cert_source_path) or not \
+            os.path.isfile(key_source_path):
+        ctx.logger.info('Generating SSL certificate and key: {0}, {1}'.
+                        format(cert_filename, key_filename))
+        # TODO handle this better:
+        if cn is None:
+            raise 'cn not supplied, SSL certificates cannot be generated'
+        _generate_ssl_cert(cert_source_path, key_source_path, cn)
+
+    ctx.logger.info('Deploying SSL certs...')
+    cert_target_path = os.path.join(SSL_CERTS_TARGET_DIR, cert_filename)
+    key_target_path = os.path.join(SSL_CERTS_TARGET_DIR, key_filename)
+    deploy_blueprint_resource(cert_source_path, cert_target_path)
+    deploy_blueprint_resource(key_source_path, key_target_path)
 
 
 def install_python_package(source, venv=''):
