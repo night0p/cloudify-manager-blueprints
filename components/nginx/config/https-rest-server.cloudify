@@ -2,14 +2,14 @@
 server {
   # server listening for the internal requests.
   # listens on both 443 and 80, but http will be redirected to https (below)
-  listen              {{ ctx.target.instance.runtime_properties.internal_rest_host }}:80;
+  listen              80;
   listen              443 ssl;
   server_name         {{ ctx.target.instance.runtime_properties.internal_rest_host }};
 
   # force http redirect to https
-  # TODO: the host param here might be wrong?
+  # TODO: the host param here might be wrong? switched to $server_name instead
   if ($scheme = http) {
-      return 301 https://$host$request_uri;
+      return 301 https://$server_name$request_uri;
   }
 
   ssl_certificate     /root/cloudify/internal_rest_host.crt;
@@ -32,14 +32,14 @@ server {
 server {
   # server listening for the external requests.
   # listens on both 443 and 80, but http will be redirected to https (below)
-  listen              {{ ctx.target.instance.runtime_properties.external_rest_host }}:80;
+  listen              80;
   listen              443 ssl;
   server_name         {{ ctx.target.instance.runtime_properties.external_rest_host }};
 
   # force http redirect to https
-  # TODO: the host param here might be wrong?
+  # TODO: the host param here might be wrong? switched to $server_name instead
   if ($scheme = http) {
-      return 301 https://$host$request_uri;
+      return 301 https://$server_name$request_uri;
   }
 
   ssl_certificate     /root/cloudify/external_rest_host.crt;

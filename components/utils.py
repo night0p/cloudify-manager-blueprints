@@ -157,7 +157,7 @@ def remove_dir(directory):
 
 def _generate_ssl_cert(cert_filename, key_filename, cn):
     command_arr = shlex.split('openssl req -x509 -nodes -newkey rsa:2048 '
-                              '-out {1} -keyout {0} -days 3650 -batch '
+                              '-out {0} -keyout {1} -days 3650 -batch '
                               '-subj \'/CN={2}\''.
                               format(cert_filename, key_filename, cn))
     sudo(command_arr)
@@ -174,22 +174,27 @@ def deploy_ssl_cert_and_key(cert_filename, key_filename, cn=None):
     :param cn: the common name to use for certificates creation (e.g. myserver.com)
     """
     mkdir(SSL_CERTS_TARGET_DIR)
-    cert_source_path = os.path.join(SSL_CERTS_SOURCE_DIR, cert_filename)
-    key_source_path = os.path.join(SSL_CERTS_SOURCE_DIR, key_filename)
-    if not os.path.isfile(cert_source_path) or not \
-            os.path.isfile(key_source_path):
-        ctx.logger.info('Generating SSL certificate and key: {0}, {1}'.
-                        format(cert_filename, key_filename))
+    user_supplied_cert_path = \
+        os.path.join(SSL_CERTS_SOURCE_DIR, cert_filename)
+    user_supplied_key_path = \
+        os.path.join(SSL_CERTS_SOURCE_DIR, key_filename)
+    cert_target_path = os.path.join(SSL_CERTS_TARGET_DIR, cert_filename)
+    key_target_path = os.path.join(SSL_CERTS_TARGET_DIR, key_filename)
+    try:
+        ctx.logger.info('Deploying SSL certificate \"{0}\" and SSL private '
+                        'key \"{1}\"...'.format(cert_filename, key_filename))
+        deploy_blueprint_resource(user_supplied_cert_path, cert_target_path)
+        deploy_blueprint_resource(user_supplied_key_path, key_target_path)
+    except Exception:
         # TODO handle this better:
         if cn is None:
             raise 'cn not supplied, SSL certificates cannot be generated'
-        _generate_ssl_cert(cert_source_path, key_source_path, cn)
-
-    ctx.logger.info('Deploying SSL certs...')
-    cert_target_path = os.path.join(SSL_CERTS_TARGET_DIR, cert_filename)
-    key_target_path = os.path.join(SSL_CERTS_TARGET_DIR, key_filename)
-    deploy_blueprint_resource(cert_source_path, cert_target_path)
-    deploy_blueprint_resource(key_source_path, key_target_path)
+        ctx.logger.info('Generating SSL certificate \"{0}\" and SSL private '
+                        'key \"{1}\" for CN \"{2}\"...'.
+                        format(cert_filename, key_filename, cn))
+        _generate_ssl_cert(cert_target_path, key_target_path, cn)
+        chmod(664, cert_target_path)
+        chmod(664, key_target_path)
 
 
 def install_python_package(source, venv=''):
