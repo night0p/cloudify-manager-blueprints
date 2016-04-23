@@ -198,26 +198,25 @@ def _install_elasticsearch():
     ctx.logger.info('Setting Elasticsearch Heap Size...')
     # we should treat these as templates.
 
-    # TODO: FIX THIS
     utils.replace_in_file(
-        '#ES_HEAP_SIZE=2g',
+        '(?:#|)ES_HEAP_SIZE=(.*)',
         'ES_HEAP_SIZE={0}'.format(es_heap_size),
         '/etc/sysconfig/elasticsearch')
 
     if es_java_opts:
         ctx.logger.info('Setting additional JAVA_OPTS...')
         utils.replace_in_file(
-            '#ES_JAVA_OPTS',
+            '(?:#|)ES_JAVA_OPTS=(.*)',
             'ES_JAVA_OPTS={0}'.format(es_java_opts),
             '/etc/sysconfig/elasticsearch')
 
     ctx.logger.info('Setting Elasticsearch logs path...')
     utils.replace_in_file(
-        '#LOG_DIR=/var/log/elasticsearch',
+        '(?:#|)LOG_DIR=(.*)',
         'LOG_DIR={0}'.format(es_logs_path),
         '/etc/sysconfig/elasticsearch')
     utils.replace_in_file(
-        '#ES_GC_LOG_FILE=/var/log/elasticsearch/gc.log',
+        '(?:#|)ES_GC_LOG_FILE=(.*)',
         'ES_GC_LOG_FILE={0}'.format(os.path.join(es_logs_path, 'gc.log')),
         '/etc/sysconfig/elasticsearch')
     utils.logrotate(ES_SERVICE_NAME)
