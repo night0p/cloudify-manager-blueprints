@@ -21,8 +21,10 @@ def preconfigure_nginx():
     # TODO: NEED TO IMPLEMENT THIS IN CTX UTILS
     ctx.source.instance.runtime_properties['rest_protocol'] = rest_protocol
     if rest_protocol == 'https':
-        internal_rest_host = ctx.target.instance.runtime_properties['internal_rest_host']
-        external_rest_host = ctx.target.instance.runtime_properties['external_rest_host']
+        internal_rest_host = \
+            ctx.target.instance.runtime_properties['internal_rest_host']
+        external_rest_host = \
+            ctx.target.instance.runtime_properties['external_rest_host']
         # handle certs for internal rest host
         utils.deploy_ssl_cert_and_key(cert_filename='internal_rest_host.crt',
                                       key_filename='internal_rest_host.key',

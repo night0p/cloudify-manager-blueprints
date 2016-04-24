@@ -57,7 +57,8 @@ def install_optional(rest_venv):
         ctx.logger.info('Installing REST Service...')
         utils.install_python_package(TMP_REST_DIR, rest_venv)
         ctx.logger.info('Deploying Required Manager Resources...')
-        utils.copy_recursive('/tmp/resources/rest-service/cloudify/', MANAGER_RESOURCES_HOME)
+        utils.copy_recursive('/tmp/resources/rest-service/cloudify/',
+                             MANAGER_RESOURCES_HOME)
         utils.remove_dir(TMP_REST_DIR)
 
 

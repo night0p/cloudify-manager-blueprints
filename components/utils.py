@@ -171,9 +171,11 @@ def deploy_ssl_cert_and_key(cert_filename, key_filename, cn=None):
     manager-blueprint 'resources/ssl' directory.
     If SSL certs were supplied - Cloudify will use them,
     otherwise - they will be generated
-    :param cert_filename: the name of the certificate file (e.g. internal_rest_host.crt)
+    :param cert_filename: the name of the certificate file (e.g.
+        internal_rest_host.crt)
     :param key_filename: the name of the key file (e.g. internal_rest_host.key)
-    :param cn: the common name to use for certificates creation (e.g. myserver.com)
+    :param cn: the common name to use for certificates creation (e.g.
+        myserver.com)
     """
     mkdir(SSL_CERTS_TARGET_DIR)
     user_supplied_cert_path = \
