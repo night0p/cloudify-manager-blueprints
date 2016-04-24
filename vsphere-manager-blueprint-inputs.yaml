@@ -101,9 +101,9 @@
 # To disable certificate verification, set this value to false.
 #verify_certificate: false
 
-# If certificate verification should use a copy of the public certificate -
-# specify the local path to it on the agent machine
-#ssl_certificate: /root/cloudify/server.crt
+# The manager's certificates are added to the agents' local CA path.
+# To cancel this behavior, set the below to false.
+#add_server_ssl_certs_to_agent_ca_path: true
 
 # Username and password of the Cloudify administrator.
 # This user will also be included in the simple userstore repostiroty if the

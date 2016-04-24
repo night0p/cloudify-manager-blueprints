@@ -34,10 +34,6 @@ node_types:
             task_retry_interval: 30
           policy_engine:
             start_timeout: 30
-#          rest_username: ''
-#          rest_password: ''
-#          verify_manager_certificate: ''
-#          ssl_certificate: ''
       #########################################################################
       # Setting 'enabled' to true will activate security on the REST service,
       # according to the below configuration. Each request received by the
@@ -477,10 +473,10 @@ node_types:
         description: True to verify the SSL certificate of the manager
         type: boolean
         default: { get_input: riemann_verify_manager_certificate }
-      manager_ssl_certificate:
-        description: The SSL certificate of the manager
+      add_server_ssl_certs_to_riemann_ca_path:
+        description: Add the manager's certs to Riemann's CA path
         type: string
-        default: { get_input: riemann_manager_ssl_certificate }
+        default: { get_input: add_server_ssl_certs_to_riemann_ca_path }
     interfaces:
       cloudify.interfaces.lifecycle:
         create:

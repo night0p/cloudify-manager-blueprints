@@ -25,7 +25,8 @@ ssl_enabled = target_runtime_props['ssl_enabled']
 cloudify_username = ctx.source.node.properties['rest_username']
 cloudify_password = ctx.source.node.properties['rest_password']
 verify_certificate = ctx.source.node.properties['verify_manager_certificate']
-ssl_certificate = ctx.source.node.properties['manager_ssl_certificate']
+add_server_ssl_certs_to_riemann_ca_path = \
+    ctx.source.node.properties['add_server_ssl_certs_to_riemann_ca_path']
 
 
 source_runtime_props['internal_manager_host'] = internal_manager_host
@@ -52,7 +53,7 @@ ctx.logger.info('***** debug: Riemann cloudify_username: {0}'.
                 format(cloudify_username))
 ctx.logger.info('***** debug: Riemann cloudify_password: {0}'.
                 format(cloudify_password))
-ctx.logger.info('***** debug: Riemann verify_manager_certificate: {0}'.
+ctx.logger.info('***** debug: Riemann verify_certificate: {0}'.
                 format(verify_certificate))
-ctx.logger.info('***** debug: Riemann manager_ssl_certificate: {0}'.
-                format(ssl_certificate))
+ctx.logger.info('***** debug: Riemann add_server_ssl_certs_to_riemann_ca_path:'
+                ' {0}'.format(add_server_ssl_certs_to_riemann_ca_path))

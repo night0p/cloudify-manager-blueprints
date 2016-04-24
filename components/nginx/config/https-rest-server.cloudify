@@ -7,13 +7,12 @@ server {
   server_name         {{ ctx.target.instance.runtime_properties.internal_rest_host }};
 
   # force http redirect to https
-  # TODO: the host param here might be wrong? switched to $server_name instead
   if ($scheme = http) {
       return 301 https://$server_name$request_uri;
   }
 
-  ssl_certificate     /root/cloudify/internal_rest_host.crt;
-  ssl_certificate_key /root/cloudify/internal_rest_host.key;
+  ssl_certificate     /root/cloudify/ssl/internal_rest_host.crt;
+  ssl_certificate_key /root/cloudify/ssl/internal_rest_host.key;
 
   include "/etc/nginx/conf.d/logs-conf.cloudify";
 
@@ -37,13 +36,12 @@ server {
   server_name         {{ ctx.target.instance.runtime_properties.external_rest_host }};
 
   # force http redirect to https
-  # TODO: the host param here might be wrong? switched to $server_name instead
   if ($scheme = http) {
       return 301 https://$server_name$request_uri;
   }
 
-  ssl_certificate     /root/cloudify/external_rest_host.crt;
-  ssl_certificate_key /root/cloudify/external_rest_host.key;
+  ssl_certificate     /root/cloudify/ssl/external_rest_host.crt;
+  ssl_certificate_key /root/cloudify/ssl/external_rest_host.key;
 
   include "/etc/nginx/conf.d/logs-conf.cloudify";
 

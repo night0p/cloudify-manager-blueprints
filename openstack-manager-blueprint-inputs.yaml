@@ -72,9 +72,9 @@ agents_user: ''
 # To disable certificate verification, set this value to false.
 #verify_certificate: false
 
-# If certificate verification should use a copy of the public certificate -
-# specify the local path to it on the agent machine
-#ssl_certificate: /root/cloudify/server.crt
+# The manager's certificates are added to the agents' local CA path.
+# To cancel this behavior, set the below to false.
+#add_server_ssl_certs_to_agent_ca_path: true
 
 # Username and password of the Cloudify administrator.
 # This user will also be included in the simple userstore repostiroty if the
@@ -87,8 +87,8 @@ agents_user: ''
 #riemann_rest_password: 'riemann'
 # True to make Riemann verify the SSL certificate of the manager, False otherwise
 #riemann_verify_manager_certificate: ''
-# Rieman's copy of the manager's SSL certificate, could be used for certificate validation
-#riemann_manager_ssl_certificate: ''
+# True to Add the manager's certs to Riemann's CA path, False otherwise
+#add_server_ssl_certs_to_riemann_ca_path: ''
 
 
 # Username and password used by agents in REST calls

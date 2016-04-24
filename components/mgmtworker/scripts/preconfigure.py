@@ -21,7 +21,8 @@ ssl_enabled = target_runtime_props['ssl_enabled']
 cloudify_username = target_runtime_props['agents_rest_username']
 cloudify_password = target_runtime_props['agents_rest_password']
 verify_certificate = target_runtime_props['verify_manager_certificate']
-ssl_certificate = target_runtime_props['manager_ssl_certificate']
+local_rest_cert_file = target_runtime_props['local_rest_cert_file']
+rest_cert_content = utils.get_file_contents(local_rest_cert_file)
 
 
 source_runtime_props['internal_manager_host'] = internal_manager_host
@@ -33,7 +34,8 @@ source_runtime_props['ssl_enabled'] = ssl_enabled
 source_runtime_props['cloudify_username'] = cloudify_username
 source_runtime_props['cloudify_password'] = cloudify_password
 source_runtime_props['verify_certificate'] = verify_certificate
-source_runtime_props['ssl_certificate'] = ssl_certificate
+source_runtime_props['local_rest_cert_file'] = local_rest_cert_file
+source_runtime_props['rest_cert_content'] = rest_cert_content
 
 
 ctx.logger.info('***** debug: MgmtWorker internal_manager_host: {0}'
@@ -54,5 +56,7 @@ ctx.logger.info('***** debug: MgmtWorker cloudify_password: {0}'
                 .format(cloudify_password))
 ctx.logger.info('***** debug: MgmtWorker verify_certificate: {0}'
                 .format(verify_certificate))
-ctx.logger.info('***** debug: MgmtWorker ssl_certificate: {0}'
-                .format(ssl_certificate))
+ctx.logger.info('***** debug: MgmtWorker local_rest_cert_file: {0}'
+                .format(local_rest_cert_file))
+ctx.logger.info('***** debug: MgmtWorker rest_cert_content: {0}'
+                .format(rest_cert_content))

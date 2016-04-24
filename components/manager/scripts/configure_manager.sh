@@ -14,25 +14,22 @@ function _retrieve_security_settings() {
         agents_rest_username=$(ctx -j node properties cloudify.cloudify_agent.rest_username)
         agents_rest_password=$(ctx -j node properties cloudify.cloudify_agent.rest_password)
         verify_manager_certificate=$(ctx -j node properties cloudify.cloudify_agent.verify_manager_certificate)
-        manager_ssl_certificate=$(ctx -j node properties cloudify.cloudify_agent.manager_ssl_certificate)
+        add_server_ssl_certs_to_agent_ca_path=$(ctx -j node properties cloudify.cloudify_agent.add_manager_ssl_certs_to_ca_path)
+        if ${add_server_ssl_certs_to_agent_ca_path} == true ; then
+            local_rest_cert_file = '/root/cloudify/ssl/internal_rest_host.crt'
+        else
+            local_rest_cert_file = ''
+        fi
 
         ctx logger info "agents_rest_username: ${agents_rest_username}"
         ctx logger info "agents_rest_password: ${agents_rest_password}"
         ctx logger info "verify_manager_certificate: ${verify_manager_certificate}"
-        ctx logger info "manager_ssl_certificate: ${manager_ssl_certificate}"
+        ctx logger info "local_rest_cert_file: ${local_rest_cert_file}"
 
-        ctx instance runtime-properties dummyattr1 "dummyvalue1"
-        ctx logger info "logger1"
-        ctx instance runtime-properties dummyattr2 dummyvalue2
-        ctx logger info "logger2"
         ctx instance runtime-properties agents_rest_username ${agents_rest_username}
-        ctx logger info "logger3"
         ctx instance runtime-properties agents_rest_password ${agents_rest_password}
-        ctx logger info "logger4"
         ctx instance runtime-properties verify_manager_certificate ${verify_manager_certificate}
-        ctx logger info "logger5"
-        ctx instance runtime-properties manager_ssl_certificate "${manager_ssl_certificate}"
-        ctx logger info "logger6"
+        ctx instance runtime-properties local_rest_cert_file "${local_rest_cert_file}"
 
         if ${ssl_enabled} == true ; then
             ctx logger info "SSL is enabled, setting rest port to 443 and rest_protocol to https"

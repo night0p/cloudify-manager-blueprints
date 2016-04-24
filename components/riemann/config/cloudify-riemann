@@ -12,7 +12,7 @@ SSL_ENABLED="{{ ctx.instance.runtime_properties.ssl_enabled }}"
 CLOUDIFY_USERNAME="{{ ctx.node.properties.rest_username }}"
 CLOUDIFY_PASSWORD="{{ ctx.node.properties.rest_password }}"
 VERIFY_SSL_CERTIFICATE="{{ ctx.node.properties.verify_manager_certificate }}"
-CLOUDIFY_SSL_CERT="{{ ctx.node.properties.manager_ssl_certificate }}"
+LOCAL_REST_CERT_FILE="{{ ctx.node.properties.local_rest_cert_file }}"
 
 
 RABBITMQ_HOST="{{ ctx.instance.runtime_properties.rabbitmq_endpoint_ip }}"

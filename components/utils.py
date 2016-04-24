@@ -19,7 +19,7 @@ from cloudify import ctx
 PROCESS_POLLING_INTERVAL = 0.1
 CLOUDIFY_SOURCES_PATH = '/opt/cloudify/sources'
 SSL_CERTS_SOURCE_DIR = 'resources/ssl'
-SSL_CERTS_TARGET_DIR = '/root/cloudify'
+SSL_CERTS_TARGET_DIR = '/root/cloudify/ssl'
 
 
 def retry(exception, tries=4, delay=3, backoff=2):
@@ -46,9 +46,11 @@ def retry(exception, tries=4, delay=3, backoff=2):
     return deco_retry
 
 
-def get_file_contents(file_path):
+def get_file_contents(file_path, strip_last_new_line=False):
     with open(file_path) as f:
-        data = f.read().rstrip('\n')
+        data = f.read()
+    if strip_last_new_line:
+        data = data.rstrip('\n')
     return data
 
 
@@ -193,8 +195,8 @@ def deploy_ssl_cert_and_key(cert_filename, key_filename, cn=None):
                         'key \"{1}\" for CN \"{2}\"...'.
                         format(cert_filename, key_filename, cn))
         _generate_ssl_cert(cert_target_path, key_target_path, cn)
-        chmod(664, cert_target_path)
-        chmod(664, key_target_path)
+        chmod('664', cert_target_path)
+        chmod('664', key_target_path)
 
 
 def install_python_package(source, venv=''):
