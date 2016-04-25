@@ -36,8 +36,8 @@ def http_request(url, data=None, method='PUT'):
 
 def _configure_elasticsearch(host, port):
 
-    storage_endpoint = 'http://{0}:{1}/cloudify_storage/'.format(host, port)
-    events_endpoint = 'http://{0}:{1}/cloudify_events/'.format(host, port)
+    base_endpoint = 'http://{0}:{1}'.format(host, port)
+    storage_endpoint = '{0}/cloudify_storage/'.format(base_endpoint)
     storage_settings = json.dumps({
         "settings": {
             "analysis": {
@@ -51,7 +51,9 @@ def _configure_elasticsearch(host, port):
     ctx.logger.info('Deleting `cloudify_storage` index if exists...')
     http_request(storage_endpoint, method='DELETE')
     ctx.logger.info('Deleting `cloudify_events` index if exists...')
-    http_request(events_endpoint, method='DELETE')
+    http_request('{0}/cloudify_events/'.format(base_endpoint), method='DELETE')
+    ctx.logger.info('Deleting `logstash` indexs if exists...')
+    http_request('{0}/logstash-*'.format(base_endpoint), method='DELETE')
 
     ctx.logger.info('Creating `cloudify_storage` index...')
     http_request(storage_endpoint, storage_settings, 'PUT')
