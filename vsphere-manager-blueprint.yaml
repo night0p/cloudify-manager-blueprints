@@ -231,6 +231,9 @@ inputs:
   agent_rest_password:
     default: cfy_agent
 
+  add_server_ssl_certs_to_agent_ca_path:
+    default: true
+
   insecure_endpoints_disabled:
     description: Disables insecure REST endpoints
     type: boolean
